@@ -1,0 +1,4 @@
+library/
+inventory/*
+inventory_plugins/
+.DS_Store

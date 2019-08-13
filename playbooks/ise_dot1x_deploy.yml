@@ -1,0 +1,175 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: sample ISE configuration playbook
+#
+#      usage:  ansible-playbook  playbooks/ise_dot1x_deploy.yml -e "{'host_groups':'dna_3_switches'}" 
+#
+#      inputs:
+#        - bootstrap: sample_bootstrap
+#
+
+- name: Deploy ISE dot1x Authentication to Access Layer
+  hosts:  "{{ host_groups }}"
+  gather_facts: no
+
+  vars: 
+    # Radius Settings for Dot1x
+    client_radius_group: dna-3-dot1x
+    radius_server_name: 'dna-3-ise'
+    radius_server_ip: '192.168.91.158'
+    radius_server_key: 'WWTwwt1!'
+    radius_source_interface: 'Vlan10'
+    test_user: cisco
+    test_password: cisco
+    ibns: 1
+    dnac_ise_integration: true
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../files/password.yml'
+      delegate_to: localhost  
+        
+    - name: import data
+      include_vars: 
+        file: '../files/lab_vars.yml'
+        name: lab_vars
+      delegate_to: localhost'
+          
+    - name: Retrieve Current Config Mode 
+      ios_command: 
+        commands: 
+          - authentication display config-mode 
+      register: display_mode 
+    
+    - name: set ibns control variable based on display_mode
+      set_fact: 
+        ibns: 2
+      when: display_mode.stdout[0] is search('new-style')
+
+    # Block for IBNS 2
+    - block:
+      
+      # - name: Save Compiled Config to File
+      #   copy:
+      #       dest: '/Users/andiorij/development/dna_3_legacy/tmp/{{ inventory_hostname_short }}_aaa_policy.cfg'
+      #       content: "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/new_ise_global_policies.j2').split('\n') | trim }}"
+            
+      # - name: set config
+      #   set_fact: 
+      #     config:  "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/new_ise_global_policies.j2').split('\n') | trim }}"
+    
+      - name: Monitor Mode ACL
+        ios_config: 
+          lines: 
+            - permit ip any any      
+          parents: 
+            - ip access-list extended MONITOR_MODE
+        notify: 
+          - save config
+
+      - name: Apply Global ISE Settings
+        ios_config:
+          src: '../templates/new_ise_global_policies.j2'
+        notify: 
+          - save config
+      
+      when: 
+        - ibns == 2
+        - dnac_ise_integration == true
+    
+    - block: 
+      - name: set config
+        set_fact: 
+          config:  "{{ lookup('template', '../templates/ise_global.j2').split('\n') | trim }}"
+
+      - name: Radius Server 
+        ios_config: 
+          lines: 
+            - address ipv4 {{ radius_server_ip }} auth-port 1812 acct-port 1813 
+          after: 
+            - key {{ radius_server_key }}
+          parents: 
+            - radius server {{ radius_server_name }}
+        notify: 
+          - save config
+
+      - name: Radius Server Group 
+        ios_config: 
+          lines: 
+            - server name {{ radius_server_name }}
+            - ip radius source-interface {{ radius_source_interface }}
+          parents: 
+            - aaa group server radius {{ client_radius_group }}
+        notify: 
+          - save config
+
+      - name: Dynamic Authorization 
+        ios_config: 
+          lines: 
+            - aaa server radius dynamic-author
+          after:
+            - client {{ radius_server_ip }} server-key 0 {{ radius_server_key }}
+        notify: 
+          - save config
+          
+      - name: Monitor Mode ACL
+        ios_config: 
+          lines: 
+            - permit ip any any      
+          parents: 
+            - ip access-list extended MONITOR_MODE
+        notify: 
+          - save config
+
+      - name: Apply Global ISE Settings
+        ios_config:
+          lines: "{{ config }}"
+        notify: 
+          - save config
+      when: 
+        - ibns == 1
+        - dnac_ise_integration == false
+    
+    - name: Validate AAA 
+      ios_command: 
+        commands:
+          - test aaa group radius {{ test_user }} {{ test_password }} new
+      register: test_results
+    
+    - assert:
+        that: "test_results.stdout[0] is search('successfully')"
+        fail_msg: 'Authentication Failed.  AAA not configured properly.'
+    
+    # - name: set interface config
+    #   set_fact: 
+    #     config:  "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/ise_global.j2').split('\n') | trim }}"
+
+    - block: 
+      - name: Configure Access Interfaces 
+        ios_config: 
+          lines: "{{ lookup('template', '../templates/ibn2_ise_dot1x_mon_mode_port.j2').split('\n') }}"
+          parents: "{{ item }}"
+        notify: 
+          - save config
+        vars:
+          vlan_id: 20
+        loop: 
+          - interface GigabitEthernet1/0/3
+          - interface GigabitEthernet1/0/4
+          - interface GigabitEthernet1/0/5
+      when: 
+        - ibns == 2
+        - lab_vars[inventory_hostname_short]['role'] is search('access')
+
+  handlers:  
+    - name: save config
+      ios_config: 
+        save_when: always

@@ -1,0 +1,79 @@
+---
+- name: Installation Playbook for AnsibleFest Demo
+  hosts: localhost
+  
+  tasks: 
+    - debug: msg="Welcome to the AnsibleFest Demo!"
+
+    # - name: Clone DNAC Modules 
+    #   git:
+    #     dest: ../library/
+    #     repo: https://github.com/jandiorio/ansible-dnac-modules
+    #     force: no 
+    #     track_submodules: no 
+    #     accept_hostkey: no
+    #     clone: yes 
+    #     remote: origin 
+    
+    # - name: Create module_utils network/dnac directory
+    #   file:
+    #     path: "{{ item }}/network/dnac" 
+    #     state: directory         
+    #   loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+
+    # - name: Copy dnac.py to module_utils/network/dnac
+    #   copy:
+    #     dest: "{{ item }}/network/dnac"
+    #     src: ../library/dnac.py
+    #     # directory_mode: undefined # not required. When doing a recursive copy set the mode for the directories. If this is not set we will use the system defaults. The mode is only set on directories which are newly created, and will not affect those that already existed.
+    #     force: yes
+    #   loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+
+    # - name: Clone DNAC Inventory Plugin
+    #   git: 
+    #     dest: ../inventory_plugins
+    #     repo: https://github.com/jandiorio/ansible-dnac-inventory-plugin
+    #     force: no
+    #     track_submodules: no
+    #     accept_hostkey: no
+    #     clone: yes
+    #     remote: origin
+
+    - name: Create Links to Modules in Library Dir
+      file: 
+        state: link
+        src : "{{ item }}"
+        dest: ../playbooks/library/{{ item | basename }}
+      with_fileglob: 
+        - "../ansible-dnac-modules/*.py"
+
+    - name: Create module_utils network/dnac directory
+      file:
+        path: "{{ item }}/network/dnac" 
+        state: directory         
+      loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+
+    - name: __init__.py
+      file:
+        path: "{{ item }}/network/dnac/__init__.py"
+        state: touch
+      loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+      
+    - name: Copy dnac.py to module_utils/network/dnac
+      copy:
+        dest: "{{ item }}/network/dnac"
+        src: ../ansible-dnac-modules/dnac.py
+        force: yes
+      loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"        
+
+    - name: Install Dependent Python Package - timezonefinder
+      pip:
+        name: timezonefinder
+        state: present 
+        version: 3.4.2
+    
+    - name: Install Dependent Python Package - geopy
+      pip:
+        name: geopy
+        state: present 
+        

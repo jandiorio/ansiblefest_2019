@@ -1,0 +1,39 @@
+---
+- name: BGP
+  hosts: "{{ host_groups }}"
+  gather_facts: no 
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../files/password.yml'
+      delegate_to: localhost  
+  
+    - name: import data
+      include_vars: 
+        file: '../files/lab_vars.yml'
+        name: lab_vars
+      delegate_to: localhost
+    
+    - name: Build BGP Config
+      set_fact: 
+        bgp_config: "{{ lookup('template', '../templates/bgp.j2').split('\n') }}"
+      when: 
+        - lab_vars[inventory_hostname_short]['bgp'] is defined  
+        - desired_state is search('present')
+    
+    - name: Config BGP 
+      ios_config: 
+        parents: "router bgp {{ lab_vars[inventory_hostname_short]['bgp'].as_num }}"
+        lines: "{{ bgp_config }}"
+      when: 
+        - lab_vars[inventory_hostname_short]['bgp'] is defined  
+        - desired_state is search('present')
+
+    - name: Config BGP 
+      ios_config: 
+        lines: "no router bgp {{ lab_vars[inventory_hostname_short]['bgp']['as_num'] }}"
+      when: 
+        - lab_vars[inventory_hostname_short]['bgp'] is defined  
+        - desired_state is search('absent') 

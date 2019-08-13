@@ -1,0 +1,12 @@
+# global aaa configuration - this can be pushed by DNA Center.  Do not deploy 
+# this if you will also integrate DNAC and use the Design workflow to push aaa configuration
+
+aaa new-model
+radius-server attribute 6 on-for-login-auth 
+radius-server attribute 8 include-in-access-req
+radius-server attribute 25 access-request include 
+radius-server dead-criteria time 5 tries 3 
+radius-server deadtime 10
+aaa authentication dot1x default group {{ client_radius_group }}
+aaa accounting update newinfo periodic 2880
+aaa accounting identity default start-stop group {{ client_radius_group }}

@@ -1,0 +1,220 @@
+---
+- name: DNA-3 build lab
+  connection: local 
+  hosts: "{{ host_groups }}"
+  gather_facts: false
+  # no_log: true
+
+  #  ansible-playbook playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac'}"
+  
+  tasks: 
+    - name: import creds
+      include_vars: 
+        file: '../files/password.yml'
+      delegate_to: localhost  
+
+    - name: include data 
+      include_vars:
+          file: ../files/lab_vars.yml
+      delegate_to: localhost
+      
+    - name: build hierarchy
+      dnac_group:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        group_name: "{{ item.group_name }}"
+        group_type: "{{ item.group_type }}"
+        group_parent_name: "{{ item.group_parent_name }}"
+        group_building_address: "{{ item.group_building_address }}"
+      loop: "{{ sites }}"
+
+    - name: network settings - dhcp server(s)
+      dnac_dhcp:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        dhcp_servers: 
+          - "{{ settings.dhcp_server }}"
+
+    - name: network settings - dns server(s)
+      dnac_dns:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{ username  }}"
+        password: "{{ password }}"
+        state:  "{{ desired_state }}"
+        primary_dns_server: "{{ settings.dns_server }}"
+        domain_name: campus.wwtatc.local
+
+    - name: network settings - syslog server(s)
+      dnac_syslog:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        syslog_servers: 
+          - "{{ settings.syslog_server }}"
+
+    - name: network settings - snmp server(s)
+      dnac_snmp:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        snmp_servers: 
+          - "{{ settings.snmp_server }}"
+
+    - name: network settings - netflow
+      dnac_netflow:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        netflow_collector: "{{ settings.netflow_collector }}"
+        netflow_port: "{{ settings.netflow_port }}"
+
+    - name: network settings - NTP server(s)
+      dnac_ntp:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        ntp_servers: 
+          - "{{ settings.ntp_server }}"
+
+    - name: network settings - timezone 
+      dnac_timezone:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        timezone: "America/Chicago"
+        location: 56 weldon parkway, maryland heights, mo        
+
+    - name: network settings - banner
+      dnac_banner:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        banner_message: "Welcome to DNAC + Ansible Lab"
+
+    - name: create a user
+      dnac_cli_credential:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        cli_user: "cisco"
+        cli_password: "cisco"
+        cli_enable_password: "WWTwwt1!"
+        cli_desc: "Campus Admin"
+        cli_comments: "Campus Admin"
+
+    - name: create a user
+      dnac_cli_credential:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        cli_user: "wwt"
+        cli_password: "WWTwwt1!"
+        cli_enable_password: "WWTwwt1!"
+        cli_desc: "Global Admin"
+        cli_comments: "Global Admin"
+
+    - name: create snmpv2 communities
+      dnac_snmpv2_credential:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        credential_type: SNMPV2_WRITE_COMMUNITY
+        snmp_community: "WWTwwt1!"
+        snmp_description: SNMP-RW
+        snmp_comments:  snmp write community        
+
+    - name: create snmpv2 communities
+      dnac_snmpv2_credential:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        credential_type: SNMPV2_READ_COMMUNITY
+        snmp_community:  "WWTwwt1!"
+        snmp_description: SNMP-READ
+        snmp_comments:  snmp write community
+        
+    - name: select CLI user at the Global Level
+      dnac_activate_credential:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        credential_name: wwt
+        credential_type: CLI
+        group_name: Central
+
+    - name: select snmp credential at the Global Level
+      dnac_activate_credential:
+        host:  "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        credential_name: SNMP-RW
+        credential_type: SNMPV2_WRITE_COMMUNITY
+        group_name: Central
+
+    - name: create discovery
+      dnac_discovery:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        discovery_name: demo_discovery
+        discovery_type: Range
+        discovery_cdp_level: 4
+        discovery_preferred_ip_method: None
+        discovery_ip_addr_list: 192.168.19.2-192.168.19.5
+        global_cli_cred: wwt
+        global_snmp_cred: SNMP-RW        
+
+    - pause:
+        seconds: 300
+
+    - name: update device role
+      dnac_device_role:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{ username }}"
+        password: "{{ password }}"
+        device_mgmt_ip: "{{ item.key }}"
+        device_role: "{{ item.value.device_role }}"
+      with_dict: "{{ devices }}"
+
+    - name: update device site assignments
+      dnac_device_assign_site:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        state: update
+        username: "{{username}}"
+        password: "{{password}}"
+        device_mgmt_ip: "{{item.key}}"
+        group_name: "{{item.value.group_name}}"
+      with_dict: "{{devices}}"

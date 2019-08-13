@@ -1,0 +1,111 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2019 World Wide Technology
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: sample ISE configuration playbook
+#
+#      usage:  ansible-playbook  playbooks/ise_dot1x_deploy.yml -e "{'host_groups':'dna_3_switches'}" 
+#
+#      inputs:
+#        - bootstrap: sample_bootstrap
+#
+
+- name: Remove ISE dot1x Authentication to Access Layer (lab testing)
+  hosts:  "{{ host_groups }}"
+#      All rights reserved.
+  gather_facts: no
+
+  vars: 
+    # Radius Settings for Dot1x
+    client_radius_group: dna-3-dot1x
+    radius_server_name: 'dna-3-ise'
+    radius_server_ip: '192.168.91.158'
+    radius_server_key: 'WWTwwt1!'
+    radius_source_interface: 'Vlan10'
+    test_user: cisco
+    test_password: cisco
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../files/password.yml'
+      delegate_to: localhost  
+        
+    - name: import data
+      include_vars: 
+        file: '../files/lab_vars.yml'
+      delegate_to: localhost'
+          
+    - name: set config
+      set_fact: 
+        config:  "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/remove_ise_global.j2').split('\n') | trim }}"
+
+    - name: Remove Radius Server Group 
+      ios_config: 
+        lines: 
+          - no aaa group server radius {{ client_radius_group }}
+      notify: 
+        - save config
+
+    - name: Remove Radius Server 
+      ios_config: 
+        lines: 
+          - no radius server {{ radius_server_name }}
+      notify: 
+        - save config
+
+    - name: Remove Dynamic Authorization 
+      ios_config: 
+        lines: 
+          - no aaa server radius dynamic-author
+      notify: 
+        - save config
+        
+    - name: Monitor Mode ACL
+      ios_config: 
+        lines: 
+          - no ip access-list extended MONITOR_MODE
+      notify: 
+        - save config
+
+    - name: Apply Global ISE Settings
+      ios_config:
+        lines: "{{ config }}"
+      notify: 
+        - save config
+    
+    # - name: Validate AAA 
+    #   ios_command: 
+    #     commands:
+    #       - test aaa group radius {{ test_user }} {{ test_password }} new
+    #   register: test_results
+    
+    # - assert:
+    #     that: "test_results.stdout[0] is search('successfully')"
+    #     fail_msg: 'Authentication Failed.  AAA not configured properly.'
+    
+    # - name: set interface config
+    #   set_fact: 
+    #     config:  "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/ise_global.j2').split('\n') | trim }}"
+
+    - name: Configure Access Interfaces 
+      ios_config: 
+        lines: "{{ lookup('template', '/Users/andiorij/development/dna_3_legacy/templates/remove_ise_dot1x_mon_mode.j2').split('\n') }}"
+        parents: "{{ item }}"
+      notify: 
+        - save config
+      vars:
+        vlan_id: 20
+      loop: 
+        - interface GigabitEthernet1/0/3
+        - interface GigabitEthernet1/0/4
+        - interface GigabitEthernet1/0/5
+
+  handlers:  
+    - name: save config
+      ios_config: 
+        save_when: always

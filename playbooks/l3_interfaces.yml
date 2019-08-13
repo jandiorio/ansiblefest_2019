@@ -1,0 +1,47 @@
+---
+- name: Build Layer 3 Interfaces
+  hosts: "{{ host_groups }}"
+  gather_facts: no 
+
+  tasks: 
+  
+    - name: import creds
+      include_vars: 
+        file: '../files/password.yml'
+      delegate_to: localhost  
+        
+    - name: import data
+      include_vars: 
+        file: '../files/lab_vars.yml'
+        name: lab_vars
+      delegate_to: localhost
+    
+    - name: add layer 3 interfaces 
+      ios_l3_interface:
+          name: "{{ item.name }}"
+          state: "{{ desired_state }}" 
+          ipv4: "{{ item.ip }}/{{ item.mask }}"
+          
+      loop: "{{ lab_vars[inventory_hostname_short]['l3_interfaces']}}"
+      loop_control:
+        label: ''
+      when: 
+        - lab_vars[inventory_hostname_short]['l3_interfaces'] is defined  
+
+    - name: HSRP 
+      ios_config:
+          lines: #"{{ lookup('template', '../templates/ios_hsrp.j2').split('\n') }}"  - not idempotent
+            - standby version 2
+            - standby {{ item.vlan_num }} ip {{ item.vip }}
+            - standby {{ item.vlan_num }} priority {{ item.hsrp_priority }}
+            - ip helper-address {{ item.ip_helper }}
+          save_when: changed
+          parents: "interface {{ item.name }}" 
+      loop: "{{ lab_vars[inventory_hostname_short]['l3_interfaces'] }}"
+      loop_control:
+        label: ''
+      when: 
+        - lab_vars[inventory_hostname_short]['role'] is search('distribution')
+        - item['vip'] is defined 
+        - desired_state is search('present')
+        

@@ -1,0 +1,11 @@
+
+  bgp router-id interface loopback0
+  {% for agg in lab_vars[inventory_hostname_short].bgp.aggregates %}
+  aggregate-address {{agg.net}} {{agg.mask}} summary-only
+  {% endfor %}
+  {% for neighbor in lab_vars[inventory_hostname_short]['bgp'].neighbors %}
+  neighbor {{neighbor.ip}} remote-as {{neighbor.as}}
+  {% if neighbor.as == lab_vars[inventory_hostname_short]['bgp'].as_num %}
+  neighbor {{neighbor.ip}} next-hop-self
+  {%endif%}
+  {% endfor %}

@@ -1,0 +1,6 @@
+ ip access-group MONITOR_MODE in
+ access-session port-control auto
+ mab
+ dot1x pae authenticator 
+ service-policy type control subscriber POLICY_ACCESS_INTERFACE
+ spanning-tree portfast

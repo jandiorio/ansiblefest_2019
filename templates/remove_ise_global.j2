@@ -1,0 +1,9 @@
+aaa new-model
+no radius-server attribute 6 on-for-login-auth 
+no radius-server attribute 8 include-in-access-req
+no radius-server attribute 25 access-request include 
+no radius-server dead-criteria time 5 tries 3 
+no radius-server deadtime 10
+no aaa authentication dot1x default group {{ client_radius_group }}
+no aaa accounting update newinfo periodic 2880
+no aaa accounting identity default start-stop group {{ client_radius_group }}

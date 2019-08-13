@@ -1,0 +1,18 @@
+
+
+{% if device_role == 'DISTRIBUTION' %}
+{% for vlan in vlans %}
+interface Vlan{{vlan.vlan_num}}
+ ip address {{vlan.ip_addr}} {{vlan.mask}}
+ standby version 2 
+ standby {{vlan.vlan_num}} ip {{vlan.vip}}
+ standby {{vlan.vlan_num}} priority {{vlan.hsrp_priority}}
+
+{% endfor %}
+
+router bgp 65001
+{% for vlan in vlans %}
+  network {{vlan.network}} mask {{vlan.mask}}
+{% endfor %}
+
+{% endif %}

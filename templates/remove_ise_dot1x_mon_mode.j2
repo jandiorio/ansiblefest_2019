@@ -1,0 +1,7 @@
+ no switchport mode access
+ no switchport access vlan {{ vlan_id }} 
+ no ip access-group MONITOR_MODE in
+ no authentication periodic 
+ no mab
+ no dot1x pae authenticator 
+ no dot1x timeout tx-period 10
