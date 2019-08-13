@@ -66,6 +66,16 @@
         force: yes
       loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"        
 
+    - name: Create Links to Inventory Plugin in inventory_plugins Dir
+      file: 
+        state: link
+        src : "{{ item }}"
+        dest: ../playbooks/inventory_plugins/{{ item | basename }}
+      with_fileglob: 
+        - "../ansible-dnac-inventory-plugin/inventory_plugins/*"
+
+    # The DNAC Modules have dependent third-party python modules 
+    # These are installed below
     - name: Install Dependent Python Package - timezonefinder
       pip:
         name: timezonefinder
