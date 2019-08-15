@@ -20,30 +20,35 @@
       delegate_to: localhost
 
     # Build dataset from provided data 
-    - set_fact: 
-        l3_interface_subset: "{{ l3_interface_subset + [ item ] }}"
-      loop:  "{{ devices[inventory_hostname_short] | json_query(l3_int_filter) }}" 
-      vars: 
-        l3_int_filter: "l3_interfaces[*].{name: name, ipv4: ip }"
-        l3_interface_subset: []
+    - block:
+      - name: reduce dataset
+        set_fact: 
+          l3_interface_subset: "{{ l3_interface_subset + [ item ] }}"
+        loop:  "{{ devices[inventory_hostname_short] | json_query(l3_int_filter) }}" 
+        vars: 
+          l3_int_filter: "l3_interfaces[*].{name: name, ipv4: ip }"
+          l3_interface_subset: []
 
-    - ios_l3_interface:
-        state: "{{ desired_state }}"
-        aggregate: "{{ l3_interface_subset }}"
+      - name: Configuration L3 Interfaces
+        ios_l3_interface:
+          state: "{{ desired_state }}"
+          aggregate: "{{ l3_interface_subset }}"
 
-    - name: HSRP 
-      ios_config:
-          lines: #"{{ lookup('template', '../templates/ios_hsrp.j2').split('\n') }}"  - not idempotent
-            - standby version 2
-            - standby {{ item.vlan_num }} ip {{ item.vip }}
-            - standby {{ item.vlan_num }} priority {{ item.hsrp_priority }}
-            - ip helper-address {{ item.ip_helper }}
-          save_when: changed
-          parents: "interface {{ item.name }}" 
-      loop: "{{ devices[inventory_hostname_short]['l3_interfaces'] }}"
-      loop_control:
-        label: ''
+      - name: HSRP 
+        ios_config:
+            lines: #"{{ lookup('template', '../templates/ios_hsrp.j2').split('\n') }}"  - not idempotent
+              - standby version 2
+              - standby {{ item.vlan_num }} ip {{ item.vip }}
+              - standby {{ item.vlan_num }} priority {{ item.hsrp_priority }}
+              - ip helper-address {{ item.ip_helper }}
+            save_when: changed
+            parents: "interface {{ item.name }}" 
+        loop: "{{ devices[inventory_hostname_short]['l3_interfaces'] }}"
+        loop_control:
+          label: ''
+        when: 
+          - devices[inventory_hostname_short]['role'] is search('distribution')
+          - item['vip'] is defined 
+          - desired_state is search('present')
       when: 
-        - devices[inventory_hostname_short]['role'] is search('distribution')
-        - item['vip'] is defined 
-        - desired_state is search('present')
+        - os is search('IOS-XE')

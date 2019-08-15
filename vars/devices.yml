@@ -1,5 +1,7 @@
   # Device Specific Attributes
 devices:
+  dna-3-wlc:
+    l3_interfaces: []
   dna-3-d1:
     stp_priority: 4096
     role: distribution
