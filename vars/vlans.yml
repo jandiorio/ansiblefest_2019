@@ -11,10 +11,10 @@ vlans:
     vlan_id: '2001'
   # built in vlans
   - name: fddi-default
-    vlan_id: 1002
+    vlan_id: '1002'
   - name: token-ring-default
-    vlan_id: 1003
+    vlan_id: '1003'
   - name: fddinet-default
-    vlan_id: 1004
+    vlan_id: '1004'
   - name: trnet-default
-    vlan_id: 1005
+    vlan_id: '1005'

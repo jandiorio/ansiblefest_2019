@@ -24,4 +24,6 @@
         state: "{{ desired_state }}"
         purge: yes
         aggregate: "{{ vlans | list }}"
-      when: ansible_network_os == 'ios'
+      when: 
+        - os is defined
+        - os == 'IOS-XE'
