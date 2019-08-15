@@ -6,5 +6,5 @@
 - name: import data
   include_vars: 
     file: '../vars/lab_vars.yml'
-    name: lab_vars
+    # name: lab_vars
   delegate_to: localhost
