@@ -1,4 +1,4 @@
 library/
-inventory/*
 .DS_Store
 playbooks/library
+ansible.cfg
