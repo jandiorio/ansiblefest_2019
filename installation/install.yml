@@ -50,7 +50,7 @@
       file: 
         state: link
         src : "{{ item }}"
-        dest: ../playbooks/inventory_plugins/{{ item | basename }}
+        dest: ../inventory/inventory_plugins/{{ item | basename }}
       with_fileglob: 
         - "../ansible-dnac-inventory-plugin/inventory_plugins/*"
 
@@ -74,7 +74,7 @@
       loop: 
         - pip2
         - pip3
-        
+
     - name: Install Dependenty Python Package - jmespath
       pip: 
         name: jmespath

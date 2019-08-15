@@ -1,6 +1,1 @@
-plugin: dna_center
-host: 'dna-3-dnac.campus.wwtatc.local'
-validate_certs: 'no'
-use_dnac_mgmt_int: false
-username: 'wwt'
-password: 'WWTwwt1!'
+/development/ansiblefest_2019/installation/../ansible-dnac-inventory-plugin/inventory_plugins/dna_center.yml
