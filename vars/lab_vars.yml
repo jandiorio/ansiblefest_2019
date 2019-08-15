@@ -1,0 +1,237 @@
+
+desired_state: present
+# DNAC Hierarchy
+sites: 
+  - group_name: "East"
+    group_parent_name: "Global"
+    group_type: "area"
+    group_building_address: "None"
+  - group_name: 'West' 
+    group_parent_name: "Global"
+    group_type: "area"
+    group_building_address: "None"
+  - group_name: "Central" 
+    group_parent_name: "Global" 
+    group_type: "area"
+    group_building_address: "None"
+  - group_name: "Maryland Heights"
+    group_type: "area"
+    group_parent_name: "Central"
+    group_building_address: "None"
+  - group_name: "ATC56"
+    group_parent_name: "Maryland Heights"
+    group_type: "building"
+    group_building_address: "56 weldon parkway, maryland heights, MO" 
+# Device Role Assigments for DNAC
+devices:
+  192.168.19.2:
+    device_role: "DISTRIBUTION"
+    group_name: "ATC56"
+  192.168.19.3:
+    device_role: "DISTRIBUTION"
+    group_name: "ATC56"
+  192.168.19.4:
+    device_role: "ACCESS"
+    group_name: "ATC56"
+  192.168.19.5:
+    device_role: "ACCESS"
+    group_name: "ATC56"
+settings: 
+  dhcp_server: '192.168.91.250'
+  ntp_server: '192.168.91.250'
+  syslog_server: '192.168.91.150'
+  snmp_server: '192.168.91.150'
+  netflow_collector: '192.168.91.150'
+  netflow_port: '6007'
+  dns_server: '192.168.91.250'
+  
+# VLANs - All Devices    
+vlans:
+  - name: vlan_10
+    vlan_id: '10'
+  - name: vlan_20
+    vlan_id: '20'
+  # - name: vlan_30
+  #   id: 30    
+  - name: ap_vlan
+    vlan_id: '40'
+  - name: underlay_vlan
+    vlan_id: '2001'
+# Device Specific Attributes
+dna-3-d1:
+  stp_priority: 4096
+  role: distribution
+  is_root: yes
+  l3_interfaces: 
+    - name: Vlan2001
+      ip: 192.168.19.214
+      mask: 30
+    - name: Vlan10
+      ip: 192.168.19.2
+      mask: 26
+      vlan_num: 10
+      vip: 192.168.19.1
+      hsrp_priority: 200
+      ip_helper: 192.168.91.250
+    - name: Vlan20
+      ip: 192.168.19.66
+      mask: 26
+      vlan_num: 20
+      vip: 192.168.19.65
+      hsrp_priority: 200
+      ip_helper: 192.168.91.250
+    # - name: Vlan30
+    #   ip: 192.168.19.226
+    #   mask: 28
+    #   vlan_num: 30
+    #   vip: 192.168.19.225
+    #   hsrp_priority: 200
+    #   ip_helper: 192.168.91.250          
+    # - name: Loopback0
+    #   ip: 192.168.19.240
+    #   mask: 32
+  l2_interfaces: 
+    - name: 'TenGigabitEthernet1/1/1'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/2'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/3'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/4'
+      mode: trunk
+      state: present      
+  bgp: 
+    as_num: 65001
+    neighbors: 
+      - as: 65090
+        ip: 192.168.19.213
+      - as: 65001
+        ip: 192.168.19.3
+    aggregates: 
+      - net: 192.168.19.0
+        mask: 255.255.255.0 
+dna-3-d2:
+  stp_priority: 8192
+  is_root: no
+  role: distribution
+  vlans:
+    - name: vlan_10
+      id: 10
+    - name: vlan_20
+      id: 20    
+  l3_interfaces:
+    - name: Vlan10
+      ip: 192.168.19.3
+      mask: 26
+      vlan_num: 10
+      vip: 192.168.19.1
+      hsrp_priority: 150
+      ip_helper: 192.168.91.250
+    - name: Vlan20
+      ip: 192.168.19.67
+      mask: 26
+      vlan_num: 20
+      vip: 192.168.19.65
+      hsrp_priority: 150
+      ip_helper: 192.168.91.250
+    # - name: Vlan30
+    #   ip: 192.168.19.227
+    #   mask: 28
+    #   vlan_num: 30
+    #   vip: 192.168.19.225
+    #   hsrp_priority: 100
+    #   ip_helper: 192.168.91.250      
+    # - name: Loopback0
+    #   ip: 192.168.19.241
+    #   mask: 32
+  l2_interfaces: 
+    - name: 'TenGigabitEthernet1/0/48'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/3'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/4'
+      mode: trunk
+      state: present
+  bgp: 
+    as_num: 65001
+    neighbors: 
+      - as: 65001
+        ip: 192.168.19.2
+    aggregates: []
+dna-3-a1:
+  role: access
+  l2_interfaces: 
+    - name: 'TenGigabitEthernet1/1/1'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/2'
+      mode: trunk
+      state: present
+    - name: 'GigabitEthernet1/0/1'
+      mode:  access
+      state: present
+      access_vlan: 10
+    - name: 'GigabitEthernet1/0/3'
+      mode:  access
+      state: present
+      access_vlan: 10
+      is_dot1x: true
+    - name: 'GigabitEthernet1/0/4'
+      mode:  access
+      state: present
+      access_vlan: 20
+      is_dot1x: true
+    - name: 'GigabitEthernet1/0/5'
+      mode:  access
+      state: present
+      access_vlan: 20
+      is_dot1x: true
+  l3_interfaces:
+    - name: Vlan10
+      ip: 192.168.19.4
+      mask: 26
+      vlan_num: 10
+    # - name: Loopback0
+    #   ip: 192.168.19.242
+    #   mask: 32      
+dna-3-a2:
+  role: access        
+  l2_interfaces: 
+    - name: 'TenGigabitEthernet1/1/3'
+      mode: trunk
+      state: present
+    - name: 'TenGigabitEthernet1/1/4'
+      mode: trunk
+      state: present
+    - name: 'GigabitEthernet1/0/1'
+      mode:  access
+      state: present
+      access_vlan: 10
+    - name: 'GigabitEthernet1/0/3'
+      mode:  access
+      state: present
+      access_vlan: 20
+      is_dot1x: true
+    - name: 'GigabitEthernet1/0/4'
+      mode:  access
+      state: present
+      access_vlan: 20
+      is_dot1x: true
+    - name: 'GigabitEthernet1/0/5'
+      mode:  access
+      state: present
+      access_vlan: 20
+      is_dot1x: true      
+  l3_interfaces:
+    - name: Vlan10
+      ip: 192.168.19.5
+      mask: 26
+      vlan_num: 10
+    # - name: Loopback0
+    #   ip: 192.168.19.243
+    #   mask: 32      

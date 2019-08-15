@@ -1,0 +1,53 @@
+---
+- name: L2 Interfaces
+  hosts: "{{ host_groups }}"
+  gather_facts: no 
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+  
+    - name: import data
+      include_vars: 
+        file: '../vars/devices.yml'
+      delegate_to: localhost
+  
+  # Needs idempotency !!!
+    - name: set interfaces as switchport 
+      ios_config:
+        lines: 
+          - switchport 
+        parents: 'interface {{ item.name }}' 
+        defaults: yes 
+        save_when: modified 
+      loop: "{{ devices[inventory_hostname_short]['l2_interfaces'] }}"
+      when: desired_state == 'present'
+
+    # Build dataset from provided data 
+    - set_fact: 
+        l2_interface_subset: "{{ l2_interface_subset + [ item ] }}"
+      loop:  "{{ devices[inventory_hostname_short] | json_query(l2_int_filter) }}" 
+      vars: 
+        l2_int_filter: "l2_interfaces[*].{name: name, mode: mode, \
+            access_vlan: access_vlan, native_vlan: native_vlan }"
+        l2_interface_subset: []
+
+    # - debug: var=l2_interface_subset
+
+    - name: L2 Interface Config
+      ios_l2_interface:
+        state: "{{ desired_state }}"
+        aggregate: "{{ l2_interface_subset }}" 
+      when: desired_state == 'present'
+
+    # Remove interface configration
+    - name: L2 Interface Config
+      ios_l2_interface:
+        state: unconfigured
+        aggregate: "{{ l2_interface_subset }}" 
+      when: desired_state == 'absent'
+
+

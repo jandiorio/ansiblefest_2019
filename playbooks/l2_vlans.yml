@@ -18,9 +18,9 @@
     
     - name: Manage VLANs
       ios_vlan:
-          vlan_id: "{{ item.id }}" 
-          name: "{{ item.name }}" 
-          state: "{{ desired_state }}"
+        vlan_id: "{{ item.id }}" 
+        name: "{{ item.name }}" 
+        state: "{{ desired_state }}"
       loop: "{{ lab_vars['vlans'] }}"
 
     - name: Spanning Tree Priority 

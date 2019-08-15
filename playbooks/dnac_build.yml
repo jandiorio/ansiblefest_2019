@@ -1,23 +1,31 @@
+#!/usr/bin/ansible-playbook
 ---
-- name: DNA-3 build lab
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac'}" --ask-vault-pass
+#
+#      inputs:
+#        - host_groups: target DNA Center
+#
+- name: DNA Center Build
   connection: local 
   hosts: "{{ host_groups }}"
   gather_facts: false
-  # no_log: true
 
-  #  ansible-playbook playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac'}"
-  
   tasks: 
-    - name: import creds
-      include_vars: 
-        file: '../files/password.yml'
-      delegate_to: localhost  
+    
+    # Imports credential and environment data from ../vars
+    - name: import data
+      include_tasks: 
+        file: include_data.yml
 
-    - name: include data 
-      include_vars:
-          file: ../files/lab_vars.yml
-      delegate_to: localhost
-      
+    # DNA Center Site Creation
     - name: build hierarchy
       dnac_group:
         host: "{{ inventory_hostname }}"

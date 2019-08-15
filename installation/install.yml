@@ -1,44 +1,24 @@
+#!/usr/bin/ansible-playbook
 ---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: Installation Playbook for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i localhost installation/install.yml
+#
+#      inputs:
+#        - bootstrap: sample_bootstrap
+#
+
 - name: Installation Playbook for AnsibleFest Demo
   hosts: localhost
   
   tasks: 
-    - debug: msg="Welcome to the AnsibleFest Demo!"
-
-    # - name: Clone DNAC Modules 
-    #   git:
-    #     dest: ../library/
-    #     repo: https://github.com/jandiorio/ansible-dnac-modules
-    #     force: no 
-    #     track_submodules: no 
-    #     accept_hostkey: no
-    #     clone: yes 
-    #     remote: origin 
     
-    # - name: Create module_utils network/dnac directory
-    #   file:
-    #     path: "{{ item }}/network/dnac" 
-    #     state: directory         
-    #   loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
-
-    # - name: Copy dnac.py to module_utils/network/dnac
-    #   copy:
-    #     dest: "{{ item }}/network/dnac"
-    #     src: ../library/dnac.py
-    #     # directory_mode: undefined # not required. When doing a recursive copy set the mode for the directories. If this is not set we will use the system defaults. The mode is only set on directories which are newly created, and will not affect those that already existed.
-    #     force: yes
-    #   loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
-
-    # - name: Clone DNAC Inventory Plugin
-    #   git: 
-    #     dest: ../inventory_plugins
-    #     repo: https://github.com/jandiorio/ansible-dnac-inventory-plugin
-    #     force: no
-    #     track_submodules: no
-    #     accept_hostkey: no
-    #     clone: yes
-    #     remote: origin
-
     - name: Create Links to Modules in Library Dir
       file: 
         state: link
@@ -65,7 +45,7 @@
         src: ../ansible-dnac-modules/dnac.py
         force: yes
       loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"        
-
+    
     - name: Create Links to Inventory Plugin in inventory_plugins Dir
       file: 
         state: link
@@ -75,15 +55,32 @@
         - "../ansible-dnac-inventory-plugin/inventory_plugins/*"
 
     # The DNAC Modules have dependent third-party python modules 
-    # These are installed below
+    # These are installed below    
     - name: Install Dependent Python Package - timezonefinder
       pip:
         name: timezonefinder
         state: present 
         version: 3.4.2
-    
+        executable: "{{ item }}"
+      loop: 
+        - pip2
+        - pip3
+
     - name: Install Dependent Python Package - geopy
       pip:
         name: geopy
         state: present 
+        executable: "{{ item }}"
+      loop: 
+        - pip2
+        - pip3
+        
+    - name: Install Dependenty Python Package - jmespath
+      pip: 
+        name: jmespath
+        state: present
+        executable: "{{ item }}"
+      loop: 
+        - pip2
+        - pip3        
         

@@ -1,0 +1,20 @@
+vlans:
+  - name: vlan_10
+    vlan_id: '10'
+  - name: vlan_20
+    vlan_id: '20'
+  # - name: vlan_30
+  #   id: 30    
+  - name: ap_vlan
+    vlan_id: '40'
+  - name: underlay_vlan
+    vlan_id: '2001'
+  # built in vlans
+  - name: fddi-default
+    vlan_id: 1002
+  - name: token-ring-default
+    vlan_id: 1003
+  - name: fddinet-default
+    vlan_id: 1004
+  - name: trnet-default
+    vlan_id: 1005

@@ -1,0 +1,8 @@
+settings: 
+  dhcp_server: '192.168.91.250'
+  ntp_server: '192.168.91.250'
+  syslog_server: '192.168.91.150'
+  snmp_server: '192.168.91.150'
+  netflow_collector: '192.168.91.150'
+  netflow_port: '6007'
+  dns_server: '192.168.91.250'
