@@ -1,4 +1,19 @@
+#!/usr/bin/ansible-playbook
 ---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: L2 Interfaces for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i playbooks/inventory_plugins/dna_center.yml playbooks/declarative_l3_interfaces.yml -e "{'host_groups':'atc56','desired_state':'present'}" --ask-vault-pass
+#
+#      inputs:
+#        - host_groups: target hosts group (atc56 for demo)
+#        - desired_state: [present, absent]
+
 - name: L2 Interfaces
   hosts: "{{ host_groups }}"
   gather_facts: no 
