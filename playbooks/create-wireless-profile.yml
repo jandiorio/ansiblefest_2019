@@ -1,0 +1,68 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i ..inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
+
+- name: create wireless profile using uri
+  hosts: dnac_dev # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  vars:
+
+    username: andiorij
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30623334653532643364313434616138333136366530636430333937623766316635356263666134
+          6665633333353265396332653466633866353365636233380a393066353537623138643662633235
+          35393737623331643463393162303164613532623836643862313335643432663862626531323133
+          3833633862376437630a396366393463383131353435306436383834663937393130303035366365
+          3330
+    profile_body: 
+      profileDetails: 
+        name: "JA-Test"
+        sites: 
+          - "Global/Bldg56/DNAC-Dev" 
+        ssidDetails: 
+          - name: "JA-TEST-SSID"
+            type: "Enterprise"
+            enableFabric: "false"
+            flexConnect: 
+              enableFlexConnect: "true"
+              localToVlan: "10"
+            interfaceName: ""
+
+  tasks: 
+    
+        #  This task is required to log into the controller and grab the auth cookie 
+    - name: login page
+      uri:
+        url: "https://{{inventory_hostname}}/dna/system/api/v1/auth/token"
+        method: POST
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: yes
+        validate_certs: no
+        return_content: yes
+      register: login_results
+      tags: backup, restore, debugging
+
+    - name: create wireless profile
+      uri:
+          url: "https://{{inventory_hostname}}/dna/intent/api/v1/wireless/profile" 
+          body: "{{ profile_body | to_json }}"
+          force_basic_auth: yes 
+          user: "{{ username }}" 
+          body_format: json
+          password: "{{ password }}" 
+          method: POST
+          headers:
+            x-auth-token: "{{ login_results.json.Token }}"
+            __runsync: "true"
+          timeout: 30 
+          status_code: 202 
+          return_content: no
+          validate_certs: no 
+      register: results
+
+    - debug: var=results
+ 
