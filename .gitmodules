@@ -1,6 +1,8 @@
 [submodule "ansible-dnac-inventory-plugin"]
 	path = ansible-dnac-inventory-plugin
 	url = https://github.com/jandiorio/ansible-dnac-inventory-plugin
+        branch = dnac-1.3-update
 [submodule "ansible-dnac-modules"]
 	path = ansible-dnac-modules
 	url = https://github.com/jandiorio/ansible-dnac-modules
+        branch = dnac-1.3-update

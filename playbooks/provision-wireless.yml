@@ -1,0 +1,35 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i ..inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
+
+- name: create wireless profile using uri
+  hosts: dnac_dev #dna_3_dnac # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  vars:
+    
+    username: andiorij
+    password: 1109Wilm00reAve
+
+  tasks: 
+
+    - name: provision wireless
+      dnac_wireless_provision:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: 'dev-5520wlc-01'
+        site: 'Global/Bldg56/DNAC-Dev'
+        managed_ap_locations: 
+          - 'Global/Bldg56/DNAC-Dev'
+        # interface_ip:
+        # interface_prefix_length:
+        # interface_gateway:
+        # lag_or_port_number:
+        # vlan:
+        # interface:
+        

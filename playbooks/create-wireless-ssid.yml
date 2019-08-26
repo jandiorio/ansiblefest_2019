@@ -3,20 +3,14 @@
 #  usage: ansible-playbook -i ..inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
 
 - name: create wireless profile using uri
-  hosts: dna_3_dnac # "{{ host_groups }}"
+  hosts: dnac_dev #dna_3_dnac # "{{ host_groups }}"
   gather_facts: no
   connection: local
 
   vars:
     
     username: andiorij
-    password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          30623334653532643364313434616138333136366530636430333937623766316635356263666134
-          6665633333353265396332653466633866353365636233380a393066353537623138643662633235
-          35393737623331643463393162303164613532623836643862313335643432663862626531323133
-          3833633862376437630a396366393463383131353435306436383834663937393130303035366365
-          3330
+    password: 1109Wilm00reAve
     
     ssid_body:
       managedAPLocations: 
@@ -40,36 +34,59 @@
 
   tasks: 
     
-        #  This task is required to log into the controller and grab the auth cookie 
-    - name: login page
-      uri:
-        url: "https://{{inventory_hostname}}/dna/system/api/v1/auth/token"
-        method: POST
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: yes
-        validate_certs: no
-        return_content: yes
-      register: login_results
-      tags: backup, restore, debugging
+    #     #  This task is required to log into the controller and grab the auth cookie 
+    # - name: login page
+    #   uri:
+    #     url: "https://{{inventory_hostname}}/dna/system/api/v1/auth/token"
+    #     method: POST
+    #     user: "{{ username }}"
+    #     password: "{{ password }}"
+    #     force_basic_auth: yes
+    #     validate_certs: no
+    #     return_content: yes
+    #   register: login_results
+    #   tags: backup, restore, debugging
 
-    - name: create wireless ssid
-      uri:
-        url: "https://{{inventory_hostname}}/dna/intent/api/v1/business/ssid"
-        body: "{{ ssid_body }}"
-        method: POST
-        force_basic_auth: yes 
-        user: "{{ username }}" 
-        body_format: json
-        password: "{{ password }}"
-        headers:
-          x-auth-token: "{{ login_results.json.Token }}"
-          __runsync: "true"
-        timeout: 30 
-        status_code: 202
-        return_content: no
-        validate_certs: no
-      register: results
+    # - name: create wireless ssid
+    #   uri:
+    #     url: "https://{{inventory_hostname}}/dna/intent/api/v1/business/ssid"
+    #     body: "{{ ssid_body }}"
+    #     method: POST
+    #     force_basic_auth: yes 
+    #     user: "{{ username }}" 
+    #     body_format: json
+    #     password: "{{ password }}"
+    #     headers:
+    #       x-auth-token: "{{ login_results.json.Token }}"
+    #       __runsync: "true"
+    #     timeout: 30 
+    #     status_code: 202
+    #     return_content: no
+    #     validate_certs: no
+    #   register: results
 
-    - debug: var=results
+    # - debug: var=results
  
+    # - name: import creds
+    #   include_vars: 
+    #     file: '../vars/password.yml'
+    #   delegate_to: localhost  
+
+    - name: build wireless ssid
+      dnac_wireless_ssid:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: 'DNA3_SSID_TEST'
+        security_level: 'WPA2_ENTERPRISE'
+        # passphrase
+        # enable_fastlane
+        # enable_mac_filtering
+        # traffic_type
+        # radio_policy                      
+        # enable_broadcast_ssid
+        # fast_transition
+        

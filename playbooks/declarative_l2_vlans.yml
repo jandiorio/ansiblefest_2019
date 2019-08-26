@@ -8,7 +8,7 @@
 #
 #      description: site VLANs for AnsibleFest 2019 Demo
 #
-#      usage:   ansible-playbook -i playbooks/inventory_plugins/dna_center.yml playbooks/declarative_l2_vlans.yml -e "{'host_groups':'atc56','desired_state':'present'}" --ask-vault-pass
+#      usage:   ansible-playbook -i inventory/inventory_plugins/dna_center.yml playbooks/declarative_l2_vlans.yml -e "{'host_groups':'atc56','desired_state':'present'}" --ask-vault-pass
 #
 #      inputs:
 #        - bootstrap: sample_bootstrap
