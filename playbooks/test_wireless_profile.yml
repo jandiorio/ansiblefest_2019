@@ -1,0 +1,43 @@
+- name: Test Wireless Profile 
+  hosts: dna-3-dnac.campus.wwtatc.local
+  gather_facts: no 
+  connection: local
+  
+
+  tasks: 
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+
+    - name: wireless profile 
+      dnac_wireless_profile:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: WP-TEST-DEMO
+        sites:          
+          - "Global/Central/Maryland Heights/ATC56"      
+        # ssid_name: DNA3_DNAC
+        # ssid_type: Enterprise
+        # flexconnect: true
+        # flexconnect_vlan: '10'
+        # fabric_enabled: false
+        # interface: ''
+      tags: [dna-3-dnac]
+
+    - name: provision wireless
+      dnac_wireless_provision:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: 'dna-3-wlc'
+        site: "Global/Central/Maryland Heights/ATC56"
+        managed_ap_locations: 
+          - "Global/Central/Maryland Heights/ATC56"    

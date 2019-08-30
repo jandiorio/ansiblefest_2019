@@ -19,11 +19,6 @@
   gather_facts: false
 
   tasks: 
-    
-    # Imports credential and environment data from ../vars
-    # - name: import data
-    #   include_tasks: 
-    #     file: include_data.yml
 
     - name: import creds
       include_vars: 
@@ -117,8 +112,32 @@
         username: "{{username}}"
         password: "{{password}}"
         state: "{{ desired_state }}"
-        timezone: "America/Chicago"
-        location: 56 weldon parkway, maryland heights, mo        
+        # timezone: "America/Chicago"
+        group_name: "Central"
+        location: 56 weldon parkway, maryland heights, mo
+
+#   Add Time Zone for NY
+    - name: network settings - timezone - East
+      dnac_timezone:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        group_name: 'East'
+        # timezone: "America/Chicago"
+        location: 1351 S Christopher Columbus Blvd, Philadelphia, PA 19147 
+
+    - name: network settings - timezone - West
+      dnac_timezone:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        group_name: 'West'
+        # timezone: "America/Chicago"
+        location: "San Francisco, CA"
 
     - name: network settings - banner
       dnac_banner:

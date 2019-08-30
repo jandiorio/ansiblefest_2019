@@ -25,15 +25,12 @@ devices:
         hsrp_priority: 200
         ip_helper: 192.168.91.250
       - name: Vlan30
-        ip: 192.168.19.226
+        ip: 192.168.19.242/28
         mask: 28
         vlan_num: 30
-        vip: 192.168.19.225
+        vip: 192.168.19.241
         hsrp_priority: 200
         ip_helper: 192.168.91.250          
-      # - name: Loopback0
-      #   ip: 192.168.19.240
-      #   mask: 32
       - name: Vlan40
         ip: 192.168.19.226/28
         mask: 26
@@ -90,15 +87,12 @@ devices:
         hsrp_priority: 150
         ip_helper: 192.168.91.250
       - name: Vlan30
-        ip: 192.168.19.227
+        ip: 192.168.19.243/28
         mask: 28
         vlan_num: 30
-        vip: 192.168.19.225
+        vip: 192.168.19.241
         hsrp_priority: 100
         ip_helper: 192.168.91.250      
-      # - name: Loopback0
-      #   ip: 192.168.19.241
-      #   mask: 32
       - name: Vlan40
         ip: 192.168.19.227/28
         mask: 26

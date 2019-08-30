@@ -32,19 +32,22 @@
         path: "{{ item }}/network/dnac" 
         state: directory         
       loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+      ignore_errors: true   
 
     - name: __init__.py
       file:
         path: "{{ item }}/network/dnac/__init__.py"
         state: touch
       loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"
+      ignore_errors: true   
       
     - name: Copy dnac.py to module_utils/network/dnac
       copy:
         dest: "{{ item }}/network/dnac"
         src: ../ansible-dnac-modules/dnac.py
         force: yes
-      loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"        
+      loop: "{{ lookup('config', 'DEFAULT_MODULE_UTILS_PATH') }}"    
+      ignore_errors: true    
     
     - name: Create Links to Inventory Plugin in inventory_plugins Dir
       file: 

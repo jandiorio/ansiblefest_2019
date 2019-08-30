@@ -33,7 +33,6 @@
     - name: Manage VLANs
       ios_vlan:
         state: "{{ desired_state }}"
-        purge: yes
         aggregate: "{{ vlans | list }}"
       when: 
         - os is defined

@@ -1,36 +1,33 @@
 #!/usr/bin/ansible-playbook
 ---
-#  usage: ansible-playbook -i ..inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/create-wireless-ssid.yml --ask-vault-pass
 
-- name: create wireless profile using uri
-  hosts: dnac_dev #dna_3_dnac # "{{ host_groups }}"
+- name: Create Wireless SSID
+  hosts: dna_3_dnac # "{{ host_groups }}"
   gather_facts: no
   connection: local
 
   vars:
     
-    username: andiorij
-    password: 1109Wilm00reAve
-    
-    ssid_body:
-      managedAPLocations: 
-        - "Global/Bldg56/DNAC-Dev"
-      ssidDetails: 
-        name: "JA-TEST-SSID"
-        securityLevel: "WPA2_ENTERPRISE"
-        enableFastLane: "false"
-        passphrase: ""
-        trafficType: "data"
-        enableBroadcastSSID: "true"
-        radioPolicy: "5GHz only"
-        enableMACFiltering: "false"
-        fastTransition: "ADAPTIVE"
-        webAuthURL: ""
-      ssidType: "Enterprise"
-      enableFabric: "false"
-      flexConnect: 
-        enableFlexConnect: "true"
-        localToVlan: "10"
+    # ssid_body:
+    #   managedAPLocations: 
+    #     - "Global/Bldg56/DNAC-Dev"
+    #   ssidDetails: 
+    #     name: "JA-TEST-SSID"
+    #     securityLevel: "WPA2_ENTERPRISE"
+    #     enableFastLane: "false"
+    #     passphrase: ""
+    #     trafficType: "data"
+    #     enableBroadcastSSID: "true"
+    #     radioPolicy: "5GHz only"
+    #     enableMACFiltering: "false"
+    #     fastTransition: "ADAPTIVE"
+    #     webAuthURL: ""
+    #   ssidType: "Enterprise"
+    #   enableFabric: "false"
+    #   flexConnect: 
+    #     enableFlexConnect: "true"
+    #     localToVlan: "10"
 
   tasks: 
     
@@ -67,11 +64,29 @@
 
     # - debug: var=results
  
-    # - name: import creds
-    #   include_vars: 
-    #     file: '../vars/password.yml'
-    #   delegate_to: localhost  
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
 
+    # - name: build wireless ssid
+    #   dnac_wireless_ssid:
+    #     host: "{{ inventory_hostname }}"
+    #     port: '443'
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+    #     state: present
+    #     #
+    #     name: 'ANSIBLEFEST2019'
+    #     security_level: 'WPA2_PERSONAL' #'WPA2_ENTERPRISE'
+    #     passphrase: ANSIBLEFEST2019
+    #     # enable_fastlane
+    #     # enable_mac_filtering
+    #     # traffic_type
+    #     # radio_policy                      
+    #     # enable_broadcast_ssid
+    #     # fast_transition
+        
     - name: build wireless ssid
       dnac_wireless_ssid:
         host: "{{ inventory_hostname }}"
@@ -80,13 +95,6 @@
         password: "{{ password }}"
         state: present
         #
-        name: 'DNA3_SSID_TEST'
-        security_level: 'WPA2_ENTERPRISE'
-        # passphrase
-        # enable_fastlane
-        # enable_mac_filtering
-        # traffic_type
-        # radio_policy                      
-        # enable_broadcast_ssid
-        # fast_transition
-        
+        name: 'ANSIBLEFEST2019'
+        security_level: 'WPA2_PERSONAL'
+        passphrase: ANSIBLEFEST2019        

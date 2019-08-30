@@ -1,32 +1,17 @@
 #!/usr/bin/ansible-playbook
 ---
-#  usage: ansible-playbook -i ..inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/create-wireless-profile.yml --ask-vault-pass
 
 - name: create wireless profile using uri
-  hosts: dnac_dev # "{{ host_groups }}"
+  hosts: dna_3_dnac # "{{ host_groups }}"
   gather_facts: no
   connection: local
 
-  vars:
-
-    username: andiorij
-    password: 1109Wilm00reAve
-    profile_body: 
-      profileDetails: 
-        name: "JA-Test"
-        sites: 
-          - "Global/Bldg56/DNAC-Dev" 
-        ssidDetails: 
-          - name: "JA-TEST-SSID"
-            type: "Enterprise"
-            enableFabric: "false"
-            flexConnect: 
-              enableFlexConnect: "true"
-              localToVlan: "10"
-            interfaceName: ""
-
   tasks: 
-    
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost      
         #  This task is required to log into the controller and grab the auth cookie 
     # - name: login page
     #   uri:
@@ -60,25 +45,24 @@
 
     # - debug: var=results
 
-    - name: wireless profile 
-      dnac_wireless_profile:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: absent
-        #
-        name: WP-ATC56-DNAC-DEV
-        sites:          
-          - "Global/Bldg56/DNAC-Dev"      
-        ssid_name: DNA3_DNAC
-        ssid_type: Enterprise
-        flexconnect: true
-        flexconnect_vlan: '10'
-        fabric_enabled: false
-        interface: ''
-      tags: [dna-3-dnac]
-
+    # - name: wireless profile 
+    #   dnac_wireless_profile:
+    #     host: "{{ inventory_hostname }}"
+    #     port: '443'
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+    #     state: present
+    #     #
+    #     name: ANSIBLEFEST_DEMO
+    #     sites:          
+    #       - "Global/Central/Maryland Heights/ATC56"    
+    #     ssid_name: ANSIBLEFEST2019
+    #     ssid_type: Enterprise
+    #     flexconnect: true
+    #     flexconnect_vlan: '30'
+    #     fabric_enabled: false
+    #     interface: ''
+        
     - name: wireless profile 
       dnac_wireless_profile:
         host: "{{ inventory_hostname }}"
@@ -86,16 +70,13 @@
         username: "{{ username }}"
         password: "{{ password }}"
         state: present
-      
         #
-        name: "DEV-DNAC"
+        name: ANSIBLEFEST_DEMO
         sites:          
-          - "Global/Bldg56/DNAC-Dev"
-        ssid_name: "DEV-DNAC"
+          - "Global/Central/Maryland Heights/ATC56"    
+        ssid_name: ANSIBLEFEST2019
         ssid_type: Enterprise
-        flexconnect: false
-        # flexconnect_vlan: '10'
+        flexconnect: true
+        flexconnect_vlan: '30'
         fabric_enabled: false
-        interface: 'EFT-Clients'
-      tags: [dnac-dev]
-        
+        interface: ''        

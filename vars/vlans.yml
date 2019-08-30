@@ -4,7 +4,7 @@ vlans:
   - name: vlan_20
     vlan_id: '20'
   - name: vlan_30
-    id: 30    
+    vlan_id: '30'    
   - name: ap_vlan
     vlan_id: '40'
   - name: underlay_vlan

@@ -1,0 +1,214 @@
+---
+#  Usage:  ansible-playbook -i ../../ansible/atc_campus_automation/inventory/hosts.yml playbooks/ansiblefest-setup.yml
+
+- name: Environment Prep - WLC Baseline
+  hosts: dna_3_wlc
+  gather_facts: no
+  connection: network_cli
+  
+  vars:
+    wlc_base_config: '../files/dna-3-wlc-baseline.cfg'
+
+  tasks:  
+
+    - name: Baseline WLC
+      include_role:
+          name: ansible-ios-config-restore
+      when: device_type is search('wlc')
+      vars: 
+        startup_config: "{{ wlc_base_config }}"
+    
+    - name: Wait for the WLC to come back online
+      wait_for:
+        port: 22
+        host: "{{ inventory_hostname }}"
+
+- name: Environment Prep - DNAC
+  hosts: dna_3_dnac
+  gather_facts: no
+  connection: local
+  
+  vars: 
+    desired_state: present
+    sites:
+      - group_name: "Central" 
+        group_parent_name: "Global" 
+        group_type: "area"
+        group_building_address: "None"
+      - group_name: "Maryland Heights"
+        group_type: "area"
+        group_parent_name: "Central"
+        group_building_address: "None"
+      - group_name: "ATC56"
+        group_parent_name: "Maryland Heights"
+        group_type: "building"
+        group_building_address: "56 Weldon Parkway, Maryland Heights, Missouri 63043, United States" 
+    wlc_base_config: 'dna-3-wlc-baseline.cfg'
+        
+  tasks:
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+
+    - name: Create Hierarchy
+      dnac_group:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        group_name: "{{ item.group_name }}"
+        group_type: "{{ item.group_type }}"
+        group_parent_name: "{{ item.group_parent_name }}"
+        group_building_address: "{{ item.group_building_address }}"
+      loop: "{{ sites }}"
+
+    - name: create a user
+      dnac_cli_credential:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        cli_user: "wwt"
+        cli_password: "WWTwwt1!"
+        cli_enable_password: "WWTwwt1!"
+        cli_desc: "Global Admin"
+        cli_comments: "Global Admin"
+
+    - name: create snmpv2 communities
+      dnac_snmpv2_credential:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        credential_type: SNMPV2_WRITE_COMMUNITY
+        snmp_community: "WWTwwt1!"
+        snmp_description: SNMP-RW
+        snmp_comments:  snmp write community        
+
+    - name: wireless profile 
+      dnac_wireless_profile:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: WP-ATC56
+        sites:          
+          - "Global/Central/Maryland Heights/ATC56"     
+      
+    # - name: provision wireless
+    #   dnac_wireless_provision:
+    #     host: "{{ inventory_hostname }}"
+    #     port: '443'
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+    #     state: present
+    #     #
+    #     name: 'dna-3-wlc'
+    #     site: 'Global/Central/Maryland Heights/ATC56'
+    #     managed_ap_locations: 
+    #       - 'Global/Central/Maryland Heights/ATC56'
+
+- name: Environment Prep - switches
+  hosts: dna_3_switches
+  gather_facts: no
+  
+  vars: 
+    desired_state: present
+    devices: 
+      dna-3-a1:
+        role: access
+        l3_interfaces: []
+      dna-3-a2:
+        role: access
+        l3_interfaces: []
+      dna-3-d1:
+        stp_priority: 4096
+        role: distribution
+        is_root: yes
+        l3_interfaces: 
+          - name: Vlan40
+            ip: 192.168.19.226/28
+            mask: 26
+            vlan_num: 40
+            vip: 192.168.19.225
+            hsrp_priority: 200
+            ip_helper: 192.168.91.250    
+      dna-3-d2:
+        stp_priority: 8192
+        is_root: no
+        role: distribution
+        l3_interfaces:
+          - name: Vlan40
+            ip: 192.168.19.227/28
+            mask: 26
+            vlan_num: 40
+            vip: 192.168.19.225
+            hsrp_priority: 150
+            ip_helper: 192.168.91.250      
+
+              
+  tasks:
+    - name: import vlans
+      include_vars: 
+        file: ../vars/vlans.yml
+
+    - name: Create VLAN 40 on All Switches
+      ios_vlan:
+        state: "{{ desired_state }}"
+        purge: yes
+        aggregate: "{{ vlans | list }}"
+    
+    # - name: Create VLAN 40 SVI on Distribution 
+    # Build dataset from provided data 
+    - block:
+      - name: reduce dataset
+        set_fact: 
+          l3_interface_subset: "{{ l3_interface_subset + [ item ] }}"
+        loop:  "{{ devices[inventory_hostname_short] | json_query(l3_int_filter) }}" 
+        vars: 
+          l3_int_filter: "l3_interfaces[*].{name: name, ipv4: ip }"
+          l3_interface_subset: []
+        when: 
+          - devices[inventory_hostname_short]['l3_interfaces'] is defined
+          - devices[inventory_hostname_short]['role'] is search('distribution')
+
+      - name: Configuration L3 Interfaces
+        ios_l3_interface:
+          state: "{{ desired_state }}"
+          aggregate: "{{ l3_interface_subset }}"
+        when: 
+        - devices[inventory_hostname_short]['role'] is search('distribution')  
+
+      - name: HSRP 
+        ios_config:
+            lines: #"{{ lookup('template', '../templates/ios_hsrp.j2').split('\n') }}"  - not idempotent
+              - standby version 2
+              - standby {{ item.vlan_num }} ip {{ item.vip }}
+              - standby {{ item.vlan_num }} priority {{ item.hsrp_priority }}
+              - ip helper-address {{ item.ip_helper }}
+            save_when: changed
+            parents: "interface {{ item.name }}" 
+        loop: "{{ devices[inventory_hostname_short]['l3_interfaces'] }}"
+        loop_control:
+          label: ''
+        when: 
+          - devices[inventory_hostname_short]['role'] is search('distribution')
+          - item['vip'] is defined 
+          - desired_state is search('present')
+      when: 
+        - devices[inventory_hostname_short]['role'] is search('distribution')
+
+    - name: Configure Access Point Port as Trunk
+      ios_l2_interface:
+          name: GigabitEthernet1/0/10
+          native_vlan: '40'
+          state: present 
+          mode: trunk 
+      when: inventory_hostname_short == 'dna-3-a1'

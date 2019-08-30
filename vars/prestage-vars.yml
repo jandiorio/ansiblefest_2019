@@ -1,0 +1,13 @@
+sites: 
+  - group_name: "Central" 
+    group_parent_name: "Global" 
+    group_type: "area"
+    group_building_address: "None"
+  - group_name: "Maryland Heights"
+    group_type: "area"
+    group_parent_name: "Central"
+    group_building_address: "None"
+  - group_name: "ATC56"
+    group_parent_name: "Maryland Heights"
+    group_type: "building"
+    group_building_address: "56 Weldon Parkway, Maryland Heights, Missouri 63043, United States" 
