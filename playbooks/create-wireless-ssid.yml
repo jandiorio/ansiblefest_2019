@@ -96,5 +96,5 @@
         state: present
         #
         name: 'ANSIBLEFEST2019'
-        security_level: 'WPA2_PERSONAL'
+        security_level: 'WPA2_ENTERPRISE'
         passphrase: ANSIBLEFEST2019        
