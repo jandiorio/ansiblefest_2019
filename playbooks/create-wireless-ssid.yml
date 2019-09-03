@@ -7,85 +7,12 @@
   gather_facts: no
   connection: local
 
-  vars:
-    
-    # ssid_body:
-    #   managedAPLocations: 
-    #     - "Global/Bldg56/DNAC-Dev"
-    #   ssidDetails: 
-    #     name: "JA-TEST-SSID"
-    #     securityLevel: "WPA2_ENTERPRISE"
-    #     enableFastLane: "false"
-    #     passphrase: ""
-    #     trafficType: "data"
-    #     enableBroadcastSSID: "true"
-    #     radioPolicy: "5GHz only"
-    #     enableMACFiltering: "false"
-    #     fastTransition: "ADAPTIVE"
-    #     webAuthURL: ""
-    #   ssidType: "Enterprise"
-    #   enableFabric: "false"
-    #   flexConnect: 
-    #     enableFlexConnect: "true"
-    #     localToVlan: "10"
-
   tasks: 
-    
-    #     #  This task is required to log into the controller and grab the auth cookie 
-    # - name: login page
-    #   uri:
-    #     url: "https://{{inventory_hostname}}/dna/system/api/v1/auth/token"
-    #     method: POST
-    #     user: "{{ username }}"
-    #     password: "{{ password }}"
-    #     force_basic_auth: yes
-    #     validate_certs: no
-    #     return_content: yes
-    #   register: login_results
-    #   tags: backup, restore, debugging
-
-    # - name: create wireless ssid
-    #   uri:
-    #     url: "https://{{inventory_hostname}}/dna/intent/api/v1/business/ssid"
-    #     body: "{{ ssid_body }}"
-    #     method: POST
-    #     force_basic_auth: yes 
-    #     user: "{{ username }}" 
-    #     body_format: json
-    #     password: "{{ password }}"
-    #     headers:
-    #       x-auth-token: "{{ login_results.json.Token }}"
-    #       __runsync: "true"
-    #     timeout: 30 
-    #     status_code: 202
-    #     return_content: no
-    #     validate_certs: no
-    #   register: results
-
-    # - debug: var=results
  
     - name: import creds
       include_vars: 
         file: '../vars/password.yml'
       delegate_to: localhost  
-
-    # - name: build wireless ssid
-    #   dnac_wireless_ssid:
-    #     host: "{{ inventory_hostname }}"
-    #     port: '443'
-    #     username: "{{ username }}"
-    #     password: "{{ password }}"
-    #     state: present
-    #     #
-    #     name: 'ANSIBLEFEST2019'
-    #     security_level: 'WPA2_PERSONAL' #'WPA2_ENTERPRISE'
-    #     passphrase: ANSIBLEFEST2019
-    #     # enable_fastlane
-    #     # enable_mac_filtering
-    #     # traffic_type
-    #     # radio_policy                      
-    #     # enable_broadcast_ssid
-    #     # fast_transition
         
     - name: build wireless ssid
       dnac_wireless_ssid:
@@ -96,5 +23,5 @@
         state: present
         #
         name: 'ANSIBLEFEST2019'
-        security_level: 'WPA2_ENTERPRISE'
-        passphrase: ANSIBLEFEST2019        
+        security_level: 'WPA2_PERSONAL'
+        passphrase: ANSIBLEFEST2019    

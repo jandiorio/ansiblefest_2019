@@ -79,4 +79,4 @@
         flexconnect: true
         flexconnect_vlan: '30'
         fabric_enabled: false
-        interface: ''        
+        interface: 'vlan_30'        
