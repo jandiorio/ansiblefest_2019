@@ -12,56 +12,6 @@
       include_vars: 
         file: '../vars/password.yml'
       delegate_to: localhost      
-        #  This task is required to log into the controller and grab the auth cookie 
-    # - name: login page
-    #   uri:
-    #     url: "https://{{inventory_hostname}}/dna/system/api/v1/auth/token"
-    #     method: POST
-    #     user: "{{ username }}"
-    #     password: "{{ password }}"
-    #     force_basic_auth: yes
-    #     validate_certs: no
-    #     return_content: yes
-    #   register: login_results
-    #   tags: backup, restore, debugging
-
-    # - name: create wireless profile
-    #   uri:
-    #       url: "https://{{inventory_hostname}}/dna/intent/api/v1/wireless/profile" 
-    #       body: "{{ profile_body | to_json }}"
-    #       force_basic_auth: yes 
-    #       user: "{{ username }}" 
-    #       body_format: json
-    #       password: "{{ password }}" 
-    #       method: POST
-    #       headers:
-    #         x-auth-token: "{{ login_results.json.Token }}"
-    #         __runsync: "true"
-    #       timeout: 30 
-    #       status_code: 202 
-    #       return_content: no
-    #       validate_certs: no 
-    #   register: results
-
-    # - debug: var=results
-
-    # - name: wireless profile 
-    #   dnac_wireless_profile:
-    #     host: "{{ inventory_hostname }}"
-    #     port: '443'
-    #     username: "{{ username }}"
-    #     password: "{{ password }}"
-    #     state: present
-    #     #
-    #     name: ANSIBLEFEST_DEMO
-    #     sites:          
-    #       - "Global/Central/Maryland Heights/ATC56"    
-    #     ssid_name: ANSIBLEFEST2019
-    #     ssid_type: Enterprise
-    #     flexconnect: true
-    #     flexconnect_vlan: '30'
-    #     fabric_enabled: false
-    #     interface: ''
         
     - name: wireless profile 
       dnac_wireless_profile:
@@ -79,4 +29,4 @@
         flexconnect: true
         flexconnect_vlan: '30'
         fabric_enabled: false
-        interface: 'vlan_30'        
+        interface: ''        
