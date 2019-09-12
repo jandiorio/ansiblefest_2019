@@ -1,0 +1,17 @@
+discoveries: 
+  - range: 192.168.19.2-192.168.19.5
+    type: Range
+    name: demo_discovery
+    cdp_level: '4'
+    cli_cred: wwt
+    snmp_cred: SNMP-RW
+    preferred_ip_method: None
+  - range: 192.168.91.235-192.168.91.235
+    type: Range
+    name: discover-wlc
+    cdp_level: '4'
+    cli_cred: wwt
+    snmp_cred: SNMP-RW
+    preferred_ip_method: None  
+    netconf_port: '830'  
+    # rediscovery: true

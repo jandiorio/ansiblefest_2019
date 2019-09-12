@@ -1,0 +1,9 @@
+---
+- name: Test GEO Lookup Plugin 
+  hosts: localhost 
+  gather_facts: no
+  connection: local 
+
+  tasks:
+    - set_fact: latlong="{{ lookup('geo', 'maryland heights') }}"
+    - debug: msg="{{ latlong.latitude }}"

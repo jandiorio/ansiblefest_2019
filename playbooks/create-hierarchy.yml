@@ -1,0 +1,81 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/create-hierarchy.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
+#
+#      inputs:
+#        - host_groups: target DNA Center
+#
+- name: DNA Center Build
+  connection: local 
+  hosts: "{{ host_groups }}"
+  gather_facts: false
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+
+    - name: import data
+      include_vars: 
+        dir: '../vars/'
+        files_matching: 'dnac.*'
+      delegate_to: localhost
+
+    # DNA Center Site Creation
+    - name: create areas
+      dnac_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "{{ item.group_name }}"
+        site_type: "{{ item.group_type }}"
+        parent_name: "{{ item.group_parent_name }}"
+      loop: "{{ sites }}"
+      when:  item.group_type == 'area'
+
+    # DNA Center building Creation
+    - name: create buildings
+      dnac_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "{{ item.group_name }}"
+        site_type: "{{ item.group_type }}"
+        parent_name: "{{ item.group_parent_name }}"
+        address: "{{ item.group_building_address }}"
+        latitude: "{{ lookup('geo',item.group_building_address).latitude }}"
+        longitude: "{{ lookup('geo',item.group_building_address).longitude }}"
+      loop: "{{ sites }}"
+      when:  item.group_type == 'building'     
+
+    # DNA Center building Creation
+    - name: create floors
+      dnac_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "{{ item.group_name }}"
+        site_type: "{{ item.group_type }}"
+        parent_name: "{{ item.group_parent_name }}"
+        rf_model: 'Cubes And Walled Offices'
+        height: "{{ item.height }}"
+        width: "{{ item.width }}"
+        length: "{{ item.length }}"
+      loop: "{{ sites }}"
+      when:  item.group_type == 'floor'     

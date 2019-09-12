@@ -1,0 +1,75 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/remove_wireless.yml --ask-vault-pass
+
+- name: remove the demo settings
+  hosts: dna_3_dnac # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost      
+        
+    #  First Reassign the Site to another profile
+    - name: wireless profile 
+      dnac_wireless_profile:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: WP-ATC56
+        sites:          
+          - "Global/Central/Maryland Heights/ATC56"  
+    
+    # Delete Profile
+    - name: wireless profile 
+      dnac_wireless_profile:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: absent
+        #
+        name: ANSIBLEFEST_DEMO
+        sites:          
+          - "Global/Central/Maryland Heights/ATC56"    
+        ssid_name: ANSIBLEFEST2019
+        ssid_type: Enterprise
+        flexconnect: true
+        flexconnect_vlan: '30'
+        fabric_enabled: false
+        interface: ''        
+
+    # Delete SSID
+    - name: wireless ssid
+      dnac_wireless_ssid:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: absent
+        #
+        name: 'ANSIBLEFEST2019'
+        security_level: 'WPA2_PERSONAL'
+        passphrase: ANSIBLEFEST2019    
+
+    # # Provision
+    # - name: provision wireless
+    #   dnac_wireless_provision:
+    #     host: "{{ inventory_hostname }}"
+    #     port: '443'
+    #     username: "{{ username }}"
+    #     password: "{{ password }}"
+    #     state: present
+    #     #
+    #     name: 'dna-3-wlc'
+    #     site: 'Global/Central/Maryland Heights/ATC56'
+    #     managed_ap_locations: 
+    #       - 'Global/Central/Maryland Heights/ATC56'
+    #       - 'Global/Central/Maryland Heights/ATC56/floor_1'    

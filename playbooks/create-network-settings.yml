@@ -29,56 +29,7 @@
       include_vars: 
         dir: '../vars/'
         files_matching: 'dnac.*'
-      delegate_to: localhost
-
-    # DNA Center Site Creation
-    - name: create areas
-      dnac_site:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: "{{ desired_state }}"
-        name: "{{ item.group_name }}"
-        site_type: "{{ item.group_type }}"
-        parent_name: "{{ item.group_parent_name }}"
-      loop: "{{ sites }}"
-      when:  item.group_type == 'area'
-
-    # DNA Center building Creation
-    - name: create buildings
-      dnac_site:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: "{{ desired_state }}"
-        name: "{{ item.group_name }}"
-        site_type: "{{ item.group_type }}"
-        parent_name: "{{ item.group_parent_name }}"
-        address: "{{ item.group_building_address }}"
-        latitude: "{{ lookup('geo',item.group_building_address).latitude }}"
-        longitude: "{{ lookup('geo',item.group_building_address).longitude }}"
-      loop: "{{ sites }}"
-      when:  item.group_type == 'building'     
-
-    # DNA Center building Creation
-    - name: create floors
-      dnac_site:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: "{{ desired_state }}"
-        name: "{{ item.group_name }}"
-        site_type: "{{ item.group_type }}"
-        parent_name: "{{ item.group_parent_name }}"
-        rf_model: 'Cubes And Walled Offices'
-        height: "{{ item.height }}"
-        width: "{{ item.width }}"
-        length: "{{ item.length }}"
-      loop: "{{ sites }}"
-      when:  item.group_type == 'floor'     
+      delegate_to: localhost 
 
     - name: network settings - dhcp server(s)
       dnac_dhcp:
@@ -151,28 +102,28 @@
         group_name: "Central"
         location: 56 weldon parkway, maryland heights, mo
 
-#   Add Time Zone for NY
-    - name: network settings - timezone - East
-      dnac_timezone:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
-        state: "{{ desired_state }}"
-        group_name: 'East'
-        # timezone: "America/Chicago"
-        location: 1351 S Christopher Columbus Blvd, Philadelphia, PA 19147 
+# #   Add Time Zone for NY
+#     - name: network settings - timezone - East
+#       dnac_timezone:
+#         host: "{{ inventory_hostname }}"
+#         port: '443'
+#         username: "{{username}}"
+#         password: "{{password}}"
+#         state: "{{ desired_state }}"
+#         group_name: 'East'
+#         # timezone: "America/Chicago"
+#         location: 1351 S Christopher Columbus Blvd, Philadelphia, PA 19147 
 
-    - name: network settings - timezone - West
-      dnac_timezone:
-        host: "{{ inventory_hostname }}"
-        port: 443
-        username: "{{username}}"
-        password: "{{password}}"
-        state: "{{ desired_state }}"
-        group_name: 'West'
-        # timezone: "America/Chicago"
-        location: "San Francisco, CA"
+#     - name: network settings - timezone - West
+#       dnac_timezone:
+#         host: "{{ inventory_hostname }}"
+#         port: 443
+#         username: "{{username}}"
+#         password: "{{password}}"
+#         state: "{{ desired_state }}"
+#         group_name: 'West'
+#         # timezone: "America/Chicago"
+#         location: "San Francisco, CA"
 
     - name: network settings - banner
       dnac_banner:
@@ -256,43 +207,3 @@
         credential_type: "{{ item.type }}"
         group_name: "{{ item.group }}"
       loop: "{{ snmp_credentials }}"
-
-    # - name: create discovery
-    #   dnac_discovery:
-    #     host: "{{ inventory_hostname }}"
-    #     port: '443'
-    #     username: "{{username}}"
-    #     password: "{{password}}"
-    #     state: "{{ desired_state }}"
-    #     discovery_name: "{{ item.name }}"
-    #     discovery_type: "{{ item.type }}"
-    #     discovery_cdp_level: "{{ item.cdp_level }}"
-    #     discovery_preferred_ip_method: "{{ item.preferred_ip_method }}"
-    #     discovery_ip_addr_list: "{{ item.range }}"
-    #     global_cli_cred: "{{ item.cli_cred }}"
-    #     global_snmp_cred: "{{ item.snmp_cred }}"
-    #   loop: "{{ discoveries }}"        
-
-    # - pause:
-    #     seconds: 300
-
-    # - name: update device role
-    #   dnac_device_role:
-    #     host: "{{ inventory_hostname }}"
-    #     port: '443'
-    #     username: "{{ username }}"
-    #     password: "{{ password }}"
-    #     device_mgmt_ip: "{{ item.key }}"
-    #     device_role: "{{ item.value.device_role }}"
-    #   with_dict: "{{ devices }}"
-
-    # - name: update device site assignments
-    #   dnac_device_assign_site:
-    #     host: "{{ inventory_hostname }}"
-    #     port: '443'
-    #     state: update
-    #     username: "{{username}}"
-    #     password: "{{password}}"
-    #     device_mgmt_ip: "{{item.key}}"
-    #     group_name: "{{item.value.group_name}}"
-    #   with_dict: "{{devices}}"

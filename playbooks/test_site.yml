@@ -1,0 +1,77 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
+#
+#      inputs:
+#        - host_groups: target DNA Center
+#
+- name: DNA Center Build
+  connection: local 
+  hosts: "{{ host_groups }}"
+  gather_facts: false
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+
+    - name: import data
+      include_vars: 
+        dir: '../vars/'
+        files_matching: 'dnac.*'
+      delegate_to: localhost
+
+    #DNA Center Site Creation
+    - name: build  floor
+      dnac_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "AREA51"
+        site_type: "area"
+        parent_name: "Global"
+    
+    - set_fact: 
+        latlong: "{{ lookup('geo','roswell, nm') }}"
+    - debug: var=lookup('geo','roswell, nm').latitude
+
+    - name: building 
+      dnac_site: 
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "SECRET-BUILDING"
+        site_type: "building"
+        parent_name: "AREA51"
+        address:  Rosewell, NM
+        latitude: "{{ latlong['latitude'] }}"
+        longitude: "{{latlong['longitude']}}"
+
+    - name: floor 
+      dnac_site: 
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: "{{ desired_state }}"
+        name: "ros_floor1"
+        site_type: "floor"
+        parent_name: "SECRET-BUILDING"
+        rf_model: 'Cubes And Walled Offices'
+        height: 10
+        width: 100
+        length: 100

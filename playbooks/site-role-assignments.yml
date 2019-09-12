@@ -1,0 +1,53 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
+#
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
+#
+#      inputs:
+#        - host_groups: target DNA Center
+#
+- name: DNA Center Build
+  connection: local 
+  hosts: "{{ host_groups }}"
+  gather_facts: false
+
+  tasks: 
+
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+
+    - name: import data
+      include_vars: 
+        dir: '../vars/'
+        files_matching: 'dnac.*'
+      delegate_to: localhost
+
+    - name: update device role
+      dnac_device_role:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        device_mgmt_ip: "{{ item.key }}"
+        device_role: "{{ item.value.device_role }}"
+      with_dict: "{{ devices }}"
+
+    - name: update device site assignments
+      dnac_device_assign_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        state: update
+        username: "{{username}}"
+        password: "{{password}}"
+        device_mgmt_ip: "{{item.key}}"
+        group_name: "{{item.value.group_name}}"
+      with_dict: "{{devices}}"

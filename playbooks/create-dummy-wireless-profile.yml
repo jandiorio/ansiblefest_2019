@@ -1,0 +1,26 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/create-dummy-wireless-profile.yml --ask-vault-pass
+
+- name: create wireless profile using uri
+  hosts: dna_3_dnac # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  tasks: 
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost      
+        
+    - name: dummy wireless profile 
+      dnac_wireless_profile:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: WP-ATC56
+        sites:          
+          - "Global/Central/Maryland Heights/ATC56"

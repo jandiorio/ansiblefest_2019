@@ -30,6 +30,7 @@
         # interface_prefix_length:
         # interface_gateway:
         # lag_or_port_number:
-        # vlan:
-        # interface:
+        vlan: 30
+        interface: vlan_30
+        reprovision: yes
         

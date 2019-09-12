@@ -1,0 +1,90 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/discover-devices.yml -e "{'desired_state':'present'}" --ask-vault-pass
+
+- name: Discover Devices
+  hosts: dna_3_dnac # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  tasks: 
+ 
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost  
+    
+    - name: import data
+      include_vars: 
+        dir: '../vars/'
+        files_matching: 'dnac_.*.yml'
+      delegate_to: localhost
+
+    - name: create a user
+      dnac_cli_credential:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        cli_user: "{{ item.name }}"
+        cli_password: "{{ item.password }}"
+        cli_enable_password: "{{ item.enable_password }}"
+        cli_desc: "{{ item.descr }}"
+        cli_comments: "{{ item.comments }}"
+      loop: "{{ cli_credentials }}"
+
+    - name: create snmpv2 communities
+      dnac_snmpv2_credential:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        credential_type: "{{ item.type }}"  
+        snmp_community: "{{ item.community }}"  
+        snmp_description: "{{ item.descr }}"  
+        snmp_comments:  "{{ item.comments }}"  
+      loop: "{{ snmp_credentials }}"     
+
+    - name: create discoveries
+      dnac_discovery:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{username}}"
+        password: "{{password}}"
+        state: "{{ desired_state }}"
+        discovery_name: "{{ item.name }}"
+        discovery_type: "{{ item.type }}"
+        discovery_cdp_level: "{{ item.cdp_level }}"
+        discovery_preferred_ip_method: "{{ item.preferred_ip_method }}"
+        discovery_ip_addr_list: "{{ item.range }}"
+        global_cli_cred: "{{ item.cli_cred }}"
+        global_snmp_cred: "{{ item.snmp_cred }}"
+        netconf_port: "{{ item.netconf_port | default(omit) }}"
+        rediscovery: "{{ item.rediscovery | default(omit) }}"
+      loop: "{{ discoveries }}" 
+
+    - pause:
+        seconds: 240
+
+    - name: update device role
+      dnac_device_role:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        device_mgmt_ip: "{{ item.key }}"
+        device_role: "{{ item.value.device_role }}"
+      with_dict: "{{ devices }}"
+
+    - name: update device site assignments
+      dnac_device_assign_site:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        state: update
+        username: "{{username}}"
+        password: "{{password}}"
+        device_mgmt_ip: "{{item.key}}"
+        group_name: "{{item.value.group_name}}"
+      with_dict: "{{devices}}"
