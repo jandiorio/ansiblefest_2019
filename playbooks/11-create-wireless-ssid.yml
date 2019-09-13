@@ -1,6 +1,6 @@
 #!/usr/bin/ansible-playbook
 ---
-#  usage: ansible-playbook -i inventory/hosts.yml playbooks/create-wireless-ssid.yml --ask-vault-pass
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/11-create-wireless-ssid.yml --ask-vault-pass
 
 - name: Create Wireless SSID
   hosts: dna_3_dnac # "{{ host_groups }}"

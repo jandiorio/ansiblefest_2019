@@ -1,6 +1,6 @@
 #!/usr/bin/ansible-playbook
 ---
-#  usage: ansible-playbook -i inventory/hosts.yml playbooks/provision-wireless.yml --ask-vault-pass
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/14-provision-wireless.yml --ask-vault-pass
 
 - name: create wireless profile using uri
   hosts: dna_3_dnac # "{{ host_groups }}"
