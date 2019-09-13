@@ -1,6 +1,14 @@
 #!/usr/bin/ansible-playbook
 ---
-#  usage: ansible-playbook -i inventory/hosts.yml playbooks/discover-devices.yml -e "{'desired_state':'present'}" --ask-vault-pass
+#
+#      Copyright (c) 2019 World Wide Technology
+#      All rights reserved.
+#
+#      author: Jeff Andiorio, jeff.andiorio@wwt.com
+#
+#      description: DNA Center Discover Devices Playbook for AnsibleFest 2019 Demo
+#
+#      usage: ansible-playbook -i inventory/hosts.yml playbooks/2-discover-devices.yml -e "{'desired_state':'present'}" --ask-vault-pass
 
 - name: Discover Devices
   hosts: dna_3_dnac # "{{ host_groups }}"

@@ -26,10 +26,6 @@
         managed_ap_locations: 
           - 'Global/Central/Maryland Heights/ATC56'
           - 'Global/Central/Maryland Heights/ATC56/floor_1'
-        # interface_ip:
-        # interface_prefix_length:
-        # interface_gateway:
-        # lag_or_port_number:
         vlan: 30
         interface: vlan_30
         reprovision: yes

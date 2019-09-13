@@ -1,0 +1,36 @@
+#!/usr/bin/ansible-playbook
+---
+#  usage: ansible-playbook -i inventory/hosts.yml playbooks/provision-wireless.yml --ask-vault-pass
+
+- name: create wireless profile using uri
+  hosts: dna_3_dnac # "{{ host_groups }}"
+  gather_facts: no
+  connection: local
+
+  tasks: 
+    - name: import creds
+      include_vars: 
+        file: '../vars/password.yml'
+      delegate_to: localhost      
+      
+    - name: provision wireless
+      dnac_wireless_provision:
+        host: "{{ inventory_hostname }}"
+        port: '443'
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        #
+        name: 'dna-3-wlc'
+        site: 'Global/Central/Maryland Heights/ATC56'
+        managed_ap_locations: 
+          - 'Global/Central/Maryland Heights/ATC56'
+          - 'Global/Central/Maryland Heights/ATC56/floor_1'
+        # interface_ip:
+        # interface_prefix_length:
+        # interface_gateway:
+        # lag_or_port_number:
+        # vlan: 30
+        # interface: vlan_30
+        # reprovision: yes
+        

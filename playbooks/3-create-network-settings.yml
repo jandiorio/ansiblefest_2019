@@ -6,9 +6,9 @@
 #
 #      author: Jeff Andiorio, jeff.andiorio@wwt.com
 #
-#      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
+#      description: DNA Center Network Settings Playbook for AnsibleFest 2019 Demo
 #
-#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/dnac_build.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/3-create-network-settings.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
 #
 #      inputs:
 #        - host_groups: target DNA Center
@@ -148,19 +148,6 @@
         cli_comments: "{{ item.comments }}"
       loop: "{{ cli_credentials }}"
 
-    # - name: create a user
-    #   dnac_cli_credential:
-    #     host: "{{ inventory_hostname }}"
-    #     port: 443
-    #     username: "{{username}}"
-    #     password: "{{password}}"
-    #     state: "{{ desired_state }}"
-    #     cli_user: "wwt"
-    #     cli_password: "WWTwwt1!"
-    #     cli_enable_password: "WWTwwt1!"
-    #     cli_desc: "Global Admin"
-    #     cli_comments: "Global Admin"
-
     - name: create snmpv2 communities
       dnac_snmpv2_credential:
         host: "{{ inventory_hostname }}"
@@ -173,18 +160,6 @@
         snmp_description: "{{ item.descr }}"  
         snmp_comments:  "{{ item.comments }}"  
       loop: "{{ snmp_credentials }}"     
-
-    # - name: create snmpv2 communities
-    #   dnac_snmpv2_credential:
-    #     host: "{{ inventory_hostname }}"
-    #     port: 443
-    #     username: "{{username}}"
-    #     password: "{{password}}"
-    #     state: "{{ desired_state }}"
-    #     credential_type: SNMPV2_READ_COMMUNITY
-    #     snmp_community:  "WWTwwt1!"
-    #     snmp_description: SNMP-READ
-    #     snmp_comments:  snmp write community
         
     - name: select CLI user at the Global Level
       dnac_activate_credential:
