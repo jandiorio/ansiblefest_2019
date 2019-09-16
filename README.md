@@ -80,6 +80,18 @@ If you are using your own environment some things need to change:
 2. `./vars/password.yml` needs to reflect the credentials for your environment
 3. `./inventory/inventory_plugins/dna_center.yml` needs to change for your environment
 
+## DNA Center Modules 
+
+The modules are installed as a submodule within this project, but if you wanted to pull them directly, you can find them here: 
+
+[DNA Center Modules](https://github.com/jandiorio/ansible-dnac-modules)
+
+## DNA Center Inventory Plugin
+
+The source for the inventory plugin can be found here: 
+
+[DNA Center Inventory Plugin](https://github.com/jandiorio/ansible-dnac-inventory-plugin)
+
 ## License
 This solution is Copyright (c) 2019 World Wide Technology. All rights reserved. A copy of the applicable end user license agreement for this solution can be obtained by emailing AutomationTeam@wwt.com.
 
