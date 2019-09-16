@@ -54,7 +54,7 @@ The playbooks were executed in sequence with 2 steps that were performed manuall
 13. Add  Wireless Interface - **Manual Step**
 14. Provision WLC
 
-The playbooks are named with a numerical prefix indicating the corresponding. 
+The playbooks are named with a numerical prefix indicating the corresponding step from the above list. 
 ```
     -rw-r--r--  1 root root 2580 Sep 16 14:50 1-create-hierarchy.yml
     -rw-r--r--  1 root root  717 Sep 16 14:50 11-create-wireless-ssid.yml
