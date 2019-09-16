@@ -18,7 +18,13 @@
   hosts: localhost
   
   tasks: 
-    
+  
+    - name: Create library subfolder in playbooks
+      file:
+        state: directory
+        path: ../playbooks/library
+        mode: 0755
+
     - name: Create Links to Modules in Library Dir
       file: 
         state: link
