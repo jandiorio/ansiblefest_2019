@@ -72,27 +72,3 @@
         netconf_port: "{{ item.netconf_port | default(omit) }}"
         rediscovery: "{{ item.rediscovery | default(omit) }}"
       loop: "{{ discoveries }}" 
-
-    - pause:
-        seconds: 240
-
-    - name: update device role
-      dnac_device_role:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        username: "{{ username }}"
-        password: "{{ password }}"
-        device_mgmt_ip: "{{ item.key }}"
-        device_role: "{{ item.value.device_role }}"
-      with_dict: "{{ devices }}"
-
-    - name: update device site assignments
-      dnac_device_assign_site:
-        host: "{{ inventory_hostname }}"
-        port: '443'
-        state: update
-        username: "{{username}}"
-        password: "{{password}}"
-        device_mgmt_ip: "{{item.key}}"
-        group_name: "{{item.value.group_name}}"
-      with_dict: "{{devices}}"
