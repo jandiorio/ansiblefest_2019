@@ -46,7 +46,7 @@
       loop: "{{ sites }}"
       when:  item.group_type == 'area'
 
-    # DNA Center building Creation
+    # DNA Center floor Creation
     - name: create buildings
       dnac_site:
         host: "{{ inventory_hostname }}"

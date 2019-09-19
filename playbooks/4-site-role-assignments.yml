@@ -8,7 +8,7 @@
 #
 #      description: DNA Center Build Playbook for AnsibleFest 2019 Demo
 #
-#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/4-site-role-assignments -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
+#      usage:  ansible-playbook -i inventory/hosts.yml playbooks/4-site-role-assignments.yml -e "{'host_groups':'dna_3_dnac','desired_state':'present'}" --ask-vault-pass
 #
 #      inputs:
 #        - host_groups: target DNA Center

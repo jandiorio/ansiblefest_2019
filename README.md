@@ -1,6 +1,8 @@
 # AnsibleFest 2019 - Do I choose Ansible, DNA Center or both?
 Collateral for the AnsibleFest 2019 Presentation 
 
+[dnac-and-ansible slides](https://github.com/jandiorio/ansiblefest_2019/blob/master/dna-center-and-ansible-draft.pdf)
+
 ## Session Information 
 AnsibleFest 2019
 
@@ -35,7 +37,7 @@ The `install.yml` perfoms the following steps:
 
 ## Demo Instructions
 
-The demonstration during the AnsibleFest session used a lab environment in the WWT Advanced Technology Session.  [Network Automation with Ansible + DNA Center Lab](https://www.wwt.com/lab/network-automation-with-ansible-dna-center)
+The demonstration during the AnsibleFest session used a lab environment in the WWT Advanced Technology Center.  [Network Automation with Ansible + DNA Center Lab](https://www.wwt.com/lab/network-automation-with-ansible-dna-center)
 
 The playbooks were executed in sequence with 2 steps that were performed manually due to the lack of an existing API.  
 
@@ -79,6 +81,8 @@ If you are using your own environment some things need to change:
 1. `./inventory/hosts.yml`  needs to change to match your DNA Center environment
 2. `./vars/password.yml` needs to reflect the credentials for your environment
 3. `./inventory/inventory_plugins/dna_center.yml` needs to change for your environment
+
+If you would like to use our environment, just navigate to [www.wwt.com](https://www.wwt.com) and register for an account.  The link to this environment is at the top of this section.  
 
 ## DNA Center Modules 
 
