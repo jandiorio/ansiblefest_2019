@@ -22,7 +22,7 @@
 
     - name: import creds
       include_vars: 
-        file: '../files/password.yml'
+        file: '../vars/password.yml'
       delegate_to: localhost  
         
     - name: import data
