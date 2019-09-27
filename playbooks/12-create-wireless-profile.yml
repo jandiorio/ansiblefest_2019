@@ -7,13 +7,13 @@
   gather_facts: no
   connection: local
 
-  tasks: 
+  tasks:
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost      
-        
-    - name: wireless profile 
+      delegate_to: localhost
+
+    - name: wireless profile
       dnac_wireless_profile:
         host: "{{ inventory_hostname }}"
         port: '443'
@@ -22,11 +22,11 @@
         state: present
         #
         name: ANSIBLEFEST_DEMO
-        sites:          
-          - "Global/Central/Maryland Heights/ATC56"    
+        sites:
+          - "Global/Central/Maryland Heights/ATC56"
         ssid_name: ANSIBLEFEST2019
         ssid_type: Enterprise
         flexconnect: true
         flexconnect_vlan: '30'
         fabric_enabled: false
-        interface: ''        
+        interface: ''

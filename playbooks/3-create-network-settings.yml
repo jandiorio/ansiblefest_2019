@@ -14,22 +14,22 @@
 #        - host_groups: target DNA Center
 #
 - name: DNA Center Build
-  connection: local 
+  connection: local
   hosts: "{{ host_groups }}"
   gather_facts: false
 
-  tasks: 
+  tasks:
 
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
+      delegate_to: localhost
 
     - name: import data
-      include_vars: 
+      include_vars:
         dir: '../vars/'
         files_matching: 'dnac.*'
-      delegate_to: localhost 
+      delegate_to: localhost
 
     - name: network settings - dhcp server(s)
       dnac_dhcp:
@@ -38,7 +38,7 @@
         username: "{{ username }}"
         password: "{{ password }}"
         state: "{{ desired_state }}"
-        dhcp_servers: 
+        dhcp_servers:
           - "{{ settings.dhcp_server }}"
 
     - name: network settings - dns server(s)
@@ -55,28 +55,28 @@
       dnac_syslog:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
-        syslog_servers: 
+        syslog_servers:
           - "{{ settings.syslog_server }}"
 
     - name: network settings - snmp server(s)
       dnac_snmp:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
-        snmp_servers: 
+        snmp_servers:
           - "{{ settings.snmp_server }}"
 
     - name: network settings - netflow
       dnac_netflow:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         netflow_collector: "{{ settings.netflow_collector }}"
         netflow_port: "{{ settings.netflow_port }}"
@@ -85,18 +85,18 @@
       dnac_ntp:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
-        ntp_servers: 
+        ntp_servers:
           - "{{ settings.ntp_server }}"
 
-    - name: network settings - timezone 
+    - name: network settings - timezone
       dnac_timezone:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         # timezone: "America/Chicago"
         group_name: "Central"
@@ -107,8 +107,8 @@
 #       dnac_timezone:
 #         host: "{{ inventory_hostname }}"
 #         port: '443'
-#         username: "{{username}}"
-#         password: "{{password}}"
+#         username: "{{ username }}"
+#         password: "{{ password }}"
 #         state: "{{ desired_state }}"
 #         group_name: 'East'
 #         # timezone: "America/Chicago"
@@ -118,8 +118,8 @@
 #       dnac_timezone:
 #         host: "{{ inventory_hostname }}"
 #         port: 443
-#         username: "{{username}}"
-#         password: "{{password}}"
+#         username: "{{ username }}"
+#         password: "{{ password }}"
 #         state: "{{ desired_state }}"
 #         group_name: 'West'
 #         # timezone: "America/Chicago"
@@ -129,8 +129,8 @@
       dnac_banner:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         banner_message: "Welcome to DNAC + Ansible Lab"
 
@@ -138,8 +138,8 @@
       dnac_cli_credential:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         cli_user: "{{ item.name }}"
         cli_password: "{{ item.password }}"
@@ -152,21 +152,21 @@
       dnac_snmpv2_credential:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
-        credential_type: "{{ item.type }}"  
-        snmp_community: "{{ item.community }}"  
-        snmp_description: "{{ item.descr }}"  
-        snmp_comments:  "{{ item.comments }}"  
-      loop: "{{ snmp_credentials }}"     
-        
+        credential_type: "{{ item.type }}"
+        snmp_community: "{{ item.community }}"
+        snmp_description: "{{ item.descr }}"
+        snmp_comments:  "{{ item.comments }}"
+      loop: "{{ snmp_credentials }}"
+
     - name: select CLI user at the Global Level
       dnac_activate_credential:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         credential_name: "{{ item.name }}"
         credential_type: "{{ item.type }}"
         group_name: "{{ item.group }}"
@@ -176,8 +176,8 @@
       dnac_activate_credential:
         host:  "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         credential_name: "{{ item.descr }}"
         credential_type: "{{ item.type }}"
         group_name: "{{ item.group }}"

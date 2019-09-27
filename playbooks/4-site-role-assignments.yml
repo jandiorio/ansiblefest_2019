@@ -14,19 +14,19 @@
 #        - host_groups: target DNA Center
 #
 - name: DNA Center Build
-  connection: local 
+  connection: local
   hosts: "{{ host_groups }}"
   gather_facts: false
 
-  tasks: 
+  tasks:
 
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
+      delegate_to: localhost
 
     - name: import data
-      include_vars: 
+      include_vars:
         dir: '../vars/'
         files_matching: 'dnac.*'
       delegate_to: localhost
@@ -46,8 +46,8 @@
         host: "{{ inventory_hostname }}"
         port: '443'
         state: update
-        username: "{{username}}"
-        password: "{{password}}"
-        device_mgmt_ip: "{{item.key}}"
-        group_name: "{{item.value.group_name}}"
-      with_dict: "{{devices}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        device_mgmt_ip: "{{ item.key }}"
+        group_name: "{{ item.value.group_name }}"
+      with_dict: "{{ devices }}"

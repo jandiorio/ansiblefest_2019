@@ -7,12 +7,12 @@
   gather_facts: no
   connection: local
 
-  tasks: 
+  tasks:
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost      
-      
+      delegate_to: localhost
+
     - name: provision wireless
       dnac_wireless_provision:
         host: "{{ inventory_hostname }}"
@@ -23,7 +23,7 @@
         #
         name: 'dna-3-wlc'
         site: 'Global/Central/Maryland Heights/ATC56'
-        managed_ap_locations: 
+        managed_ap_locations:
           - 'Global/Central/Maryland Heights/ATC56'
           - 'Global/Central/Maryland Heights/ATC56/floor_1'
         # interface_ip:
@@ -33,4 +33,3 @@
         # vlan: 30
         # interface: vlan_30
         # reprovision: yes
-        

@@ -1,2 +1,2 @@
-library/*.py
+playbooks/library/*.py
 .DS_Store

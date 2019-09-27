@@ -7,13 +7,13 @@
   gather_facts: no
   connection: local
 
-  tasks: 
- 
+  tasks:
+
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
-        
+      delegate_to: localhost
+
     - name: build wireless ssid
       dnac_wireless_ssid:
         host: "{{ inventory_hostname }}"
@@ -24,4 +24,4 @@
         #
         name: 'ANSIBLEFEST2019'
         security_level: 'WPA2_PERSONAL'
-        passphrase: ANSIBLEFEST2019    
+        passphrase: ANSIBLEFEST2019

@@ -15,19 +15,19 @@
 #        - desired_state:  present|absent
 #
 - name: DNA Center Build
-  connection: local 
+  connection: local
   hosts: "{{ host_groups }}"
   gather_facts: false
 
-  tasks: 
+  tasks:
 
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
+      delegate_to: localhost
 
     - name: import data
-      include_vars: 
+      include_vars:
         dir: '../vars/'
         files_matching: 'dnac.*'
       delegate_to: localhost
@@ -61,7 +61,7 @@
         latitude: "{{ lookup('geo',item.group_building_address).latitude }}"
         longitude: "{{ lookup('geo',item.group_building_address).longitude }}"
       loop: "{{ sites }}"
-      when:  item.group_type == 'building'     
+      when:  item.group_type == 'building'
 
     # DNA Center Floor Creation
     - name: create floors
@@ -79,4 +79,4 @@
         width: "{{ item.width }}"
         length: "{{ item.length }}"
       loop: "{{ sites }}"
-      when:  item.group_type == 'floor'     
+      when:  item.group_type == 'floor'

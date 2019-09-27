@@ -15,15 +15,15 @@
   gather_facts: no
   connection: local
 
-  tasks: 
- 
+  tasks:
+
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
-    
+      delegate_to: localhost
+
     - name: import data
-      include_vars: 
+      include_vars:
         dir: '../vars/'
         files_matching: 'dnac_.*.yml'
       delegate_to: localhost
@@ -32,8 +32,8 @@
       dnac_cli_credential:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         cli_user: "{{ item.name }}"
         cli_password: "{{ item.password }}"
@@ -46,21 +46,21 @@
       dnac_snmpv2_credential:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
-        credential_type: "{{ item.type }}"  
-        snmp_community: "{{ item.community }}"  
-        snmp_description: "{{ item.descr }}"  
-        snmp_comments:  "{{ item.comments }}"  
-      loop: "{{ snmp_credentials }}"     
+        credential_type: "{{ item.type }}"
+        snmp_community: "{{ item.community }}"
+        snmp_description: "{{ item.descr }}"
+        snmp_comments:  "{{ item.comments }}"
+      loop: "{{ snmp_credentials }}"
 
     - name: create discoveries
       dnac_discovery:
         host: "{{ inventory_hostname }}"
         port: '443'
-        username: "{{username}}"
-        password: "{{password}}"
+        username: "{{ username }}"
+        password: "{{ password }}"
         state: "{{ desired_state }}"
         discovery_name: "{{ item.name }}"
         discovery_type: "{{ item.type }}"
@@ -71,4 +71,4 @@
         global_snmp_cred: "{{ item.snmp_cred }}"
         netconf_port: "{{ item.netconf_port | default(omit) }}"
         rediscovery: "{{ item.rediscovery | default(omit) }}"
-      loop: "{{ discoveries }}" 
+      loop: "{{ discoveries }}"

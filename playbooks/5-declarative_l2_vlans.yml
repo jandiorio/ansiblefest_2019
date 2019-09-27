@@ -16,17 +16,17 @@
 
 - name: VLANs
   hosts: "{{ host_groups }}"
-  gather_facts: no 
+  gather_facts: no
 
-  tasks: 
+  tasks:
 
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
-        
+      delegate_to: localhost
+
     - name: import data
-      include_vars: 
+      include_vars:
         file: '../vars/vlans.yml'
       delegate_to: localhost
 
@@ -34,6 +34,6 @@
       ios_vlan:
         state: "{{ desired_state }}"
         aggregate: "{{ vlans | list }}"
-      when: 
+      when:
         - os is defined
         - os == 'IOS-XE'

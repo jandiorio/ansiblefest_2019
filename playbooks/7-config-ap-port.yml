@@ -14,19 +14,19 @@
 #        - host_groups: target DNA Center
 #
 - name: DNA Center Build
-  connection: local 
+  connection: local
   hosts: "{{ host_groups }}"
   gather_facts: false
 
-  tasks: 
+  tasks:
 
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost  
+      delegate_to: localhost
 
     - name: import data
-      include_vars: 
+      include_vars:
         dir: '../vars/'
         files_matching: 'dnac.*'
       delegate_to: localhost
@@ -35,6 +35,6 @@
       ios_l2_interface:
           name: GigabitEthernet1/0/10
           native_vlan: '40'
-          state: present 
-          mode: trunk 
+          state: present
+          mode: trunk
       when: inventory_hostname_short == 'dna-3-a1'

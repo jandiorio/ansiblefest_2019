@@ -7,13 +7,13 @@
   gather_facts: no
   connection: local
 
-  tasks: 
+  tasks:
     - name: import creds
-      include_vars: 
+      include_vars:
         file: '../vars/password.yml'
-      delegate_to: localhost      
-        
-    - name: dummy wireless profile 
+      delegate_to: localhost
+
+    - name: dummy wireless profile
       dnac_wireless_profile:
         host: "{{ inventory_hostname }}"
         port: '443'
@@ -22,5 +22,5 @@
         state: present
         #
         name: WP-ATC56
-        sites:          
+        sites:
           - "Global/Central/Maryland Heights/ATC56"
