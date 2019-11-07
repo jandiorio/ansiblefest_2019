@@ -28,13 +28,14 @@ RETURN = """
       - latitude and longitude of the provided address
     type: list
 """
-try: 
-    from geopy.geocoders import Nominatim
-except ImportError as e:
-    raise AnsibleError('geopy python module not installed: {}'.format(e))
 
 from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleError
+
+try:
+    from geopy.geocoders import Nominatim
+except ImportError as e:
+    raise AnsibleError('geopy python module not installed: {}'.format(e))
 
 
 class LookupModule(LookupBase):
@@ -49,7 +50,7 @@ class LookupModule(LookupBase):
         except Exception as e:
             print(e)
             raise AnsibleParserError("Could not resolve address to lat/long:  {}".format(e))
-        
+
         if location == None:
             raise AnsibleError("Lookup was unable to resolve the address provided using geopy:  {}".format(address))
         else:
